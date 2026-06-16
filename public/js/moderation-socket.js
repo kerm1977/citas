@@ -28,7 +28,9 @@ window._ModSocket = (function () {
     if (!S.socket) return;
 
     S.socket.on('moderation:new_user', (data) => {
+      /* Solo mostrar modal si el superusuario está logueado y conectado */
       if (S.currentUser?.role !== 'superadmin') return;
+      if (!S.currentUser?.id) return;
       if (!S.pendingReviewUsers.find(u => u.id === data.id)) {
         S.pendingReviewUsers.push(data);
       }
@@ -95,7 +97,10 @@ window._ModSocket = (function () {
         const data = await res.json();
         if (data.ok && data.users?.length > 0) {
           S.pendingReviewUsers = data.users;
-          window._ModModals.showNewUserAlert(data.users[0]);
+          /* Solo mostrar modal si el superusuario está logueado (tiene ID) */
+          if (S.currentUser?.id) {
+            window._ModModals.showNewUserAlert(data.users[0]);
+          }
         }
       } catch (e) { console.error('[ModSocket] pending-users error:', e); }
       return;
