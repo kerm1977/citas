@@ -85,7 +85,7 @@
         <label class="form-label">Teléfono</label>
         <div class="phone-wrap">
           <select id="r-country" class="form-control phone-select"></select>
-          <input id="r-phone" type="tel" class="form-control" placeholder="88887777"/>
+          <input id="r-phone" type="tel" class="form-control" placeholder="88887777" oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
         </div>
         <span class="form-error" id="r-phone-err"></span>
       </div>
