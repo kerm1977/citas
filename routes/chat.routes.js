@@ -42,13 +42,16 @@ const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
 module.exports = (io) => {
   router.get('/users', authRequired, (req, res) => {
     const role = req.user.role;
-    /* Include hidden users for admins and superadmins */
+    const myId = req.user.id;
     let users;
     if (role === 'admin' || role === 'superadmin') {
       users = q.getAllUsersIncludingHidden();
     } else {
       users = q.getAllUsers();
     }
+    /* Inyectar unread_count desde BD para badges correctos al conectar/reconectar */
+    const unreadMap = q.getUnreadCountsForUser(myId);
+    users = users.map(u => ({ ...u, unread_count: unreadMap[u.id] || 0 }));
     res.json({ ok: true, users });
   });
 

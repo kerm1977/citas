@@ -40,6 +40,7 @@ const Chat = (() => {
     ChatSocket.onRead(ChatUI.onRead);
     ChatSocket.onOnline(ChatUI.onOnline);
     ChatSocket.onConnect(() => {
+      loadUsers(); /* Refrescar lista y badges de no leídos al conectar/reconectar */
       ChatUI.updateCurrentUserName();
       ChatUI.checkSuperuserContacts();
       

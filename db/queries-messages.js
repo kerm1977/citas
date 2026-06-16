@@ -65,6 +65,21 @@ function deleteMessage(id, userId) {
 
 function getRoomId(a, b) { return [a, b].sort().join('_'); }
 
+/* Devuelve { [senderId]: count } de mensajes no leídos para un usuario */
+function getUnreadCountsForUser(userId) {
+  const rows = dbAll(
+    `SELECT sender_id, COUNT(*) as cnt
+     FROM messages
+     WHERE receiver_id=? AND read_at IS NULL AND deleted=0
+     GROUP BY sender_id`,
+    [userId]
+  );
+  const map = {};
+  rows.forEach(r => { map[r.sender_id] = r.cnt; });
+  return map;
+}
+
 module.exports = {
-  saveMessage, getMessages, markRead, deleteMessage, getRoomId, getMessageById
+  saveMessage, getMessages, markRead, deleteMessage, getRoomId, getMessageById,
+  getUnreadCountsForUser
 };

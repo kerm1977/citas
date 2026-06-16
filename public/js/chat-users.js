@@ -55,7 +55,9 @@ const ChatUsers = (() => {
     const init = (u.name || '?').charAt(0).toUpperCase();
     const avatar = u.avatar ? `<img src="${u.avatar}" alt="${init}" onerror="this.style.display='none';this.parentNode.textContent='${init}'"/>` : init;
     const status = u.online ? 'online' : 'offline';
-    const seen = u.online ? `<span class="cli-status-indicator ${status}"></span> En línea` : (u.last_seen ? ChatUtils.timeAgo(u.last_seen) : 'Desconectado');
+    const seen = u.online
+      ? `<span class="cli-status-indicator online"></span> En línea`
+      : `Desconectado${u.last_seen ? ' · ' + ChatUtils.timeAgo(u.last_seen) : ''}`;
     const unread = u.unread_count > 0 ? `<span class="unread-badge">${u.unread_count}</span>` : '';
     return `<div class="user-list-item" data-uid="${u.id}" onclick="Chat.openChat('${u.id}')">
       <div class="cli-avatar">${avatar}</div>

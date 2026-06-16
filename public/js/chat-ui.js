@@ -195,7 +195,7 @@ const ChatUI = (() => {
     if (active?.id === userId) {
       const st = document.getElementById('ch-status');
       if (st) {
-        st.textContent = online ? 'En línea' : (last_seen ? 'Visto: ' + ChatUtils.timeAgo(last_seen) : 'Desconectado');
+        st.textContent = online ? 'En línea' : `Desconectado${last_seen ? ' · ' + ChatUtils.timeAgo(last_seen) : ''}`;
         st.className = 'ch-status ' + (online ? 'online' : 'offline');
       }
     }
