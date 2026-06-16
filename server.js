@@ -35,6 +35,7 @@ const chatRoutes    = require('./routes/chat.routes');
 const adminRoutes   = require('./routes/admin.routes');
 const backupRoutes  = require('./routes/backup.routes');
 const reportsRoutes = require('./routes/reports.routes');
+const blocksRoutes  = require('./routes/blocks.routes');
 const { socketHandler } = require('./socket/socket.handler');
 
 const app    = express();
@@ -67,6 +68,7 @@ app.use('/api/chat',    chatRoutes(io));
 app.use('/api/admin',   adminRoutes);
 app.use('/api/backup',  backupRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api/blocks',  blocksRoutes);
 
 app.get('*', (_req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html'))

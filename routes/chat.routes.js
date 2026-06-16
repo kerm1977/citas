@@ -49,6 +49,9 @@ module.exports = (io) => {
     } else {
       users = q.getAllUsers();
     }
+    /* Excluir usuarios que el solicitante bloqueó */
+    const blockedIds = q.getBlockedIds(myId);
+    if (blockedIds.length) users = users.filter(u => !blockedIds.includes(u.id));
     /* Inyectar unread_count desde BD para badges correctos al conectar/reconectar */
     const unreadMap = q.getUnreadCountsForUser(myId);
     users = users.map(u => ({ ...u, unread_count: unreadMap[u.id] || 0 }));

@@ -16,7 +16,7 @@ window.ReportModal = (() => {
     _overlay = null;
   }
 
-  async function _submit(form, emitterId, receiverId, msgId, room) {
+  async function _submit(form, emitterId, emitterName, receiverId, msgId, room) {
     const description = form.querySelector('#rpt-description').value.trim();
     if (!description) {
       alert('Por favor describe la denuncia.');
@@ -42,12 +42,7 @@ window.ReportModal = (() => {
       const data = await res.json();
       if (data.ok) {
         close();
-        /* Toast de éxito */
-        const t = document.createElement('div');
-        t.className = 'toast toast-success';
-        t.textContent = '✅ Denuncia enviada correctamente';
-        document.getElementById('toast-container')?.appendChild(t);
-        setTimeout(() => t.remove(), 3500);
+        _showBlockModal(emitterId, emitterName);
       } else {
         alert('Error: ' + (data.msg || 'No se pudo enviar la denuncia'));
         btn.disabled = false;
@@ -103,8 +98,47 @@ window.ReportModal = (() => {
       </div>`;
     document.body.appendChild(_overlay);
     _overlay.querySelector('#rpt-submit').onclick = () =>
-      _submit(_overlay.querySelector('.report-card'), emitterId, receiverId, msgId, room);
+      _submit(_overlay.querySelector('.report-card'), emitterId, emitterName, receiverId, msgId, room);
     _overlay.addEventListener('click', e => { if (e.target === _overlay) close(); });
+  }
+
+  function _showBlockModal(emitterId, emitterName) {
+    const name = emitterName || 'esta persona';
+    const ov = document.createElement('div');
+    ov.className = 'report-overlay';
+    ov.innerHTML = `
+      <div class="report-card glass-card block-confirm-card">
+        <div class="block-confirm-icon">✅</div>
+        <p class="block-confirm-msg">Su mensaje ha sido enviado a las moderadoras para revisar el caso.</p>
+        <h3 class="block-confirm-title">¿Desea bloquear a <span>${ChatUtils.escape(name)}</span>?</h3>
+        <p class="block-confirm-sub">Si bloqueas a esta persona ya no aparecerá en tu lista de chats.</p>
+        <div class="block-confirm-actions">
+          <button id="btn-do-block" class="btn block-btn-danger">🚫 Bloquear</button>
+          <button id="btn-keep-chat" class="btn block-btn-safe">💬 Seguir Chateando</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('#btn-do-block').onclick  = () => _blockUser(emitterId, ov);
+    ov.querySelector('#btn-keep-chat').onclick = () => ov.remove();
+  }
+
+  async function _blockUser(emitterId, ov) {
+    if (!emitterId) { ov.remove(); return; }
+    const h = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._session?.token || '') };
+    try {
+      const res  = await fetch('/api/blocks', { method: 'POST', headers: h, body: JSON.stringify({ blocked_id: emitterId }) });
+      const data = await res.json();
+      ov.remove();
+      if (data.ok) {
+        /* Recargar lista para excluir al bloqueado y cerrar el chat */
+        if (typeof Chat !== 'undefined') { Chat.closeChat?.(); Chat.loadUsers?.(); }
+        const t = document.createElement('div');
+        t.className = 'toast toast-success';
+        t.textContent = '🚫 Usuario bloqueado';
+        document.getElementById('toast-container')?.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+      }
+    } catch (e) { ov.remove(); }
   }
 
   return { open, close };

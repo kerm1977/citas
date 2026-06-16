@@ -90,6 +90,16 @@ async function initDB() {
   dbExec(`CREATE INDEX IF NOT EXISTS idx_su_user ON superuser_contacts(user_id, acknowledged)`);
 
   dbExec(`
+    CREATE TABLE IF NOT EXISTS blocks (
+      id         TEXT PRIMARY KEY,
+      blocker_id TEXT NOT NULL,
+      blocked_id TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(blocker_id, blocked_id)
+    )
+  `);
+
+  dbExec(`
     CREATE TABLE IF NOT EXISTS reports (
       id           TEXT PRIMARY KEY,
       reporter_id  TEXT NOT NULL,

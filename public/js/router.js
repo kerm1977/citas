@@ -63,8 +63,9 @@ const Router = (() => {
       Admin.loadStats();
       Admin.loadUsers();
       Admin.loadMedia();
+      Admin.loadReports?.();
     }
-    if (route === 'account') _renderAccount();
+    if (route === 'account') { _renderAccount(); window.BlockManager?.loadBlockedUsers(); }
   }
 
   function _renderAccount() {
