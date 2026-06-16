@@ -1,0 +1,89 @@
+/* ── Auth Sections ───────────────────────────────────────────── */
+.auth-section {
+  min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+.auth-card {
+  width: 100%; max-width: 440px;
+  padding: 2rem 1.75rem;
+}
+
+.auth-logo {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-size: 1.6rem; font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+}
+.auth-logo svg { width: 32px; height: 32px; stroke: var(--primary); }
+
+.auth-title {
+  font-size: 1.4rem; font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.2rem;
+  font-size: .9rem;
+  color: var(--text-muted);
+}
+
+/* ── Avatar Zone (register) ──────────────────────────────────── */
+.avatar-zone {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.acct-avatar-wrap { position: relative; display: inline-block; margin: 0 auto .5rem; }
+
+.acct-avatar {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; font-weight: 700; color: #fff;
+  overflow: hidden;
+  box-shadow: 0 0 22px rgba(0,191,255,0.4);
+  cursor: pointer;
+}
+.acct-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.acct-avatar-edit-btn {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--primary); border: 2px solid rgba(255,255,255,0.1);
+  cursor: pointer; font-size: .7rem; padding: 0; line-height: 1;
+  box-shadow: 0 0 8px rgba(0,191,255,0.5);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s;
+}
+.acct-avatar-edit-btn:hover { transform: scale(1.15); }
+
+#avatar-canvas {
+  display: block; margin: 0 auto;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 18px rgba(0,191,255,0.25);
+}
+
+.avatar-ctrl-label { font-size: .8rem; color: var(--text-muted); margin-bottom: .3rem; display: block; }
+.avatar-range { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+/* ── Recovery key notice ─────────────────────────────────────── */
+.recovery-notice {
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.4);
+  border-radius: 10px; padding: .8rem 1rem;
+  font-size: .88rem; color: #c7d2fe;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .auth-card { padding: 1.5rem 1.2rem; }
+  .auth-title { font-size: 1.2rem; }
+}

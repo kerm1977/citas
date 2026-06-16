@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5"/>
+<meta name="theme-color" content="#0f172a"/>
+<meta name="description" content="Chat App — Glassmorphism PWA"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>ChatApp</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+<link rel="icon" href="/icons/icon-192.png"/>
+<!-- CSS — 100% custom, NO CDN -->
+<link rel="stylesheet" href="/css/base.css"/>
+<link rel="stylesheet" href="/css/animations.css"/>
+<link rel="stylesheet" href="/css/components.css"/>
+<link rel="stylesheet" href="/css/auth.css"/>
+<link rel="stylesheet" href="/css/chat-layout.css"/>
+<link rel="stylesheet" href="/css/chat-bubbles.css"/>
+<link rel="stylesheet" href="/css/chat-menu.css"/>
+<link rel="stylesheet" href="/css/chat-modal.css"/>
+<link rel="stylesheet" href="/css/chat-form.css"/>
+<link rel="stylesheet" href="/css/admin.css"/>
+<link rel="stylesheet" href="/css/moderation.css?v=4"/>
+</head>
+<body>
+<!-- Aurora background -->
+<div class="aurora" aria-hidden="true">
+  <div class="shape1"></div><div class="shape2"></div>
+</div>
+
+<!-- ── SECTION: LOGIN ─────────────────────────────── -->
+<section id="sec-login" class="auth-section">
+  <div class="auth-card glass-card">
+    <div class="auth-logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      ChatApp
+    </div>
+    <h1 class="auth-title">Iniciar sesión</h1>
+    <form id="form-login" novalidate>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input id="l-email" type="email" class="form-control" placeholder="tu@correo.com" autocomplete="email"/>
+        <span class="form-error" id="l-email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-eye-wrap">
+          <input id="l-pass" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password"/>
+          <button type="button" class="eye-btn" data-target="l-pass">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <span class="form-error" id="l-pass-err"></span>
+      </div>
+      <div class="form-group row-between">
+        <label class="check-label"><input id="l-remember" type="checkbox"/> Recordarme</label>
+        <button type="button" class="link-btn" onclick="Router.go('recover')">Olvidé contraseña</button>
+      </div>
+      <button type="submit" class="btn btn-full" id="login-btn">Ingresar</button>
+    </form>
+    <p class="auth-footer">¿No tienes cuenta? <button class="link-btn" onclick="Router.go('register')">Regístrate</button></p>
+  </div>
+</section>
+
+<!-- ── SECTION: REGISTER ──────────────────────────── -->
+<section id="sec-register" class="auth-section hidden">
+  <div class="auth-card glass-card">
+    <div class="auth-logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      ChatApp
+    </div>
+    <h1 class="auth-title">Crear cuenta</h1>
+    <form id="form-register" novalidate>
+      <div id="reg-avatar-zone" class="avatar-zone"></div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input id="r-name" type="text" class="form-control" placeholder="Nombre Apellido" autocomplete="name"/>
+        <span class="form-error" id="r-name-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <div class="phone-wrap">
+          <select id="r-country" class="form-control phone-select"></select>
+          <input id="r-phone" type="tel" class="form-control" placeholder="88887777"/>
+        </div>
+        <span class="form-error" id="r-phone-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input id="r-email" type="email" class="form-control" placeholder="tu@correo.com"/>
+        <span class="form-error" id="r-email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-eye-wrap">
+          <input id="r-pass" type="password" class="form-control" placeholder="Mínimo 8 caracteres"/>
+          <button type="button" class="eye-btn" data-target="r-pass">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <span class="form-error" id="r-pass-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar contraseña</label>
+        <div class="input-eye-wrap">
+          <input id="r-pass2" type="password" class="form-control" placeholder="Repite la contraseña"/>
+          <button type="button" class="eye-btn" data-target="r-pass2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <span class="form-error" id="r-pass2-err"></span>
+      </div>
+      <p class="form-hint">Se generará una llave de recuperación de 6 dígitos que se descargará automáticamente.</p>
+      <button type="submit" class="btn btn-full" id="register-btn">Crear cuenta</button>
+    </form>
+    <p class="auth-footer">¿Ya tienes cuenta? <button class="link-btn" onclick="Router.go('login')">Iniciar sesión</button></p>
+  </div>
+</section>
+
+<!-- ── SECTION: RECOVER ───────────────────────────── -->
+<section id="sec-recover" class="auth-section hidden">
+  <div class="auth-card glass-card">
+    <div class="auth-logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+      Recuperar acceso
+    </div>
+    <form id="form-recover" novalidate>
+      <div class="form-group">
+        <label class="form-label">Sube tu llave .json de recuperación</label>
+        <input id="rec-file" type="file" accept=".json" class="form-control"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nueva contraseña</label>
+        <div class="input-eye-wrap">
+          <input id="rec-pass" type="password" class="form-control" placeholder="Nueva contraseña"/>
+          <button type="button" class="eye-btn" data-target="rec-pass">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-full">Recuperar</button>
+    </form>
+    <p class="auth-footer"><button class="link-btn" onclick="Router.go('login')">← Volver al login</button></p>
+  </div>
+</section>
+
+<!-- ── SECTION: CHAT ──────────────────────────────── -->
+<section id="sec-chat" class="chat-section hidden">
+  <div class="chat-layout">
+    <aside id="chat-sidebar" class="chat-sidebar glass-card">
+      <div class="sidebar-header">
+        <div id="current-user-name" class="sidebar-brand"></div>
+        <div class="sidebar-actions">
+          <button class="icon-btn" id="btn-account" title="Mi perfil">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
+          <button class="icon-btn" id="btn-admin-panel" title="Admin" style="display:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+          <button class="icon-btn" id="btn-logout" title="Salir">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
+        </div>
+      </div>
+      <div class="sidebar-search">
+        <input id="user-search" type="search" class="form-control search-pill" placeholder="Buscar usuario..."/>
+      </div>
+      <div id="user-list" class="user-list"></div>
+    </aside>
+    <main id="chat-main" class="chat-main">
+      <div id="chat-empty" class="chat-empty">
+        <div class="chat-empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <p>Selecciona un usuario para chatear</p>
+      </div>
+      <div id="chat-window" class="chat-window hidden">
+        <header class="chat-header glass-card">
+          <div class="chat-header-user">
+            <div id="ch-avatar" class="ch-avatar"></div>
+            <div class="ch-info">
+              <div id="ch-name" class="ch-name"></div>
+              <div id="ch-status" class="ch-status"></div>
+            </div>
+          </div>
+          <button class="chat-close-btn" onclick="Chat.closeChat()" title="Cerrar chat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </header>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div id="typing-indicator" class="typing-indicator hidden">
+          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+        </div>
+        <form id="chat-form" class="chat-form glass-card">
+          <label class="attach-btn" title="Adjuntar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            <input id="file-input" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.zip" style="display:none"/>
+          </label>
+          <div id="reply-indicator" class="reply-indicator hidden">
+            <span class="reply-text"></span>
+            <button type="button" class="reply-close" onclick="ChatReply.clearReplyTo()">✕</button>
+          </div>
+          <input id="msg-input" type="text" class="form-control chat-input" placeholder="Escribe un mensaje..."/>
+          <button type="submit" class="btn btn-send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ── SECTION: ACCOUNT ───────────────────────────── -->
+<section id="sec-account" class="auth-section hidden">
+  <div class="auth-card glass-card">
+    <button class="back-btn" onclick="Router.go('chat')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Volver
+    </button>
+    <h2 class="auth-title">Mi perfil</h2>
+    <div id="acct-avatar-zone"></div>
+    <div id="acct-info"></div>
+  </div>
+</section>
+
+<!-- ── SECTION: ADMIN ─────────────────────────────── -->
+<section id="sec-admin" class="auth-section hidden">
+  <div class="admin-panel glass-card">
+    <div class="admin-header">
+      <h2 class="auth-title">Panel de administración</h2>
+      <button class="back-btn" onclick="Router.go('chat')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Volver
+    </button>
+    </div>
+    <div id="admin-stats" class="admin-stats"></div>
+    <div id="admin-user-list" class="admin-user-list"></div>
+    <h3 class="admin-section-title">Archivos compartidos</h3>
+    <div id="admin-media-list" class="admin-media-list"></div>
+    <div class="admin-actions-row">
+      <button class="btn" onclick="Backup.download()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Descargar DB
+      </button>
+      <button class="btn" onclick="Backup.downloadJSON()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Respaldo JSON
+      </button>
+      <button class="btn" onclick="Admin.exportUsers()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Exportar Usuarios
+      </button>
+      <button class="btn" onclick="Admin.loadMedia()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        Ver Archivos
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Toast container -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<!-- Audio elements with specific IDs -->
+<audio id="sound-send" preload="auto"></audio>
+<audio id="sound-receive" preload="auto"></audio>
+<audio id="sound-connect" preload="auto"></audio>
+<audio id="sound-disconnect" preload="auto"></audio>
+
+<!-- Superuser Contact Modal -->
+<div id="superuser-modal" class="modal-overlay hidden">
+  <div class="modal-content glass-card">
+    <div class="modal-header">
+      <h3 class="modal-title">🔔 Superusuario te contactó</h3>
+      <button class="modal-close" onclick="Chat.closeSuperuserModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Un superusuario intentó comunicarse contigo.</p>
+      <p id="superuser-name" class="superuser-name"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="Chat.openSuperuserChat()">Abrir Chat</button>
+      <button class="btn btn-secondary" onclick="Chat.closeSuperuserModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div id="image-modal" class="modal hidden">
+  <div class="modal-overlay" onclick="Chat.closeImageModal()"></div>
+  <div class="modal-content image-modal-content">
+    <button class="modal-close" onclick="Chat.closeImageModal()">✕</button>
+    <img id="modal-image" src="" alt="Imagen" />
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="Chat.downloadImage()">📥 Descargar imagen</button>
+      <button class="btn btn-info" onclick="Chat.replyToMessage()">↩️ Responder</button>
+      <hr style="width: 100%; border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 0.5rem 0;">
+      <button id="modal-delete-me" class="btn btn-secondary" onclick="Chat.modalDeleteForMe()">🗑️ Eliminar para mí</button>
+      <button id="modal-delete-all" class="btn btn-danger" onclick="Chat.modalDeleteForAll()">🗑️ Eliminar para todos</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vendor scripts (served locally — no CDN) -->
+<script src="/vendor/socket.io.min.js"></script>
+<script src="/vendor/bcrypt.min.js"></script>
+<!-- App scripts -->
+<script src="/js/antifreeze.js?v=2"></script>
+<script src="/js/crypto.js?v=2"></script>
+<script src="/js/validate.js?v=2"></script>
+<script src="/js/avatar.js?v=2"></script>
+<script src="/js/backup.js?v=2"></script>
+<script src="/js/auth.js?v=4"></script>
+<script src="/js/chat-utils.js?v=2"></script>
+<script src="/js/chat-socket.js?v=3"></script>
+<script src="/js/chat-users.js?v=2"></script>
+<script src="/js/chat-messages.js?v=2"></script>
+<script src="/js/chat-modal.js?v=2"></script>
+<script src="/js/chat-ui.js?v=2"></script>
+<script src="/js/chat-reply.js?v=2"></script>
+<script src="/js/moderation.js?v=4"></script>
+<script src="/js/chat.js?v=3"></script>
+<script src="/js/admin.js?v=2"></script>
+<script src="/js/router.js?v=2"></script>
+<script src="/js/app.js?v=2"></script>
+<script src="/js/sw-register.js?v=2"></script>
+<script src="/js/eye-button.js?v=2"></script>
+<script src="/js/sounds.js?v=2"></script>
+</body>
+</html>

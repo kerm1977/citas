@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0f172a"/>
+<title>ChatApp — Sin conexión</title>
+<style>
+  body { margin:0; background:#0f172a; color:#fff; font-family:system-ui,sans-serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100dvh; text-align:center; padding:2rem; }
+  .icon { font-size:5rem; margin-bottom:1.5rem; opacity:.6; }
+  h1   { font-size:1.6rem; margin-bottom:.5rem; }
+  p    { color:rgba(255,255,255,.6); font-size:.95rem; margin-bottom:2rem; }
+  button { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2);
+    color:#fff; border-radius:8px; padding:.9rem 2rem; font-size:1rem;
+    font-weight:600; cursor:pointer; letter-spacing:1px; }
+  button:hover { background:rgba(255,255,255,.25); }
+</style>
+</head>
+<body>
+  <div class="icon">📡</div>
+  <h1>Sin conexión</h1>
+  <p>Verifica tu conexión a Internet e intenta de nuevo.</p>
+  <button onclick="location.reload()">Reintentar</button>
+</body>
+</html>

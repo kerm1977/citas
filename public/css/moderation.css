@@ -1,0 +1,844 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+ *  ⚠️⚠️⚠️  CSS DE MODERACIÓN — SISTEMA DE APROBACIÓN DE USUARIAS  ⚠️⚠️⚠️
+ * ─────────────────────────────────────────────────────────────────────────────────
+ *  Este archivo contiene los estilos para el sistema de moderación.
+ *  NO MODIFICAR — Solo agregar nuevos IDs/clases para funcionalidad adicional.
+ * ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Modal de Términos y Condiciones ───────────────────────────────────────── */
+#terms-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#terms-modal-overlay.hidden {
+  display: none;
+}
+
+#terms-modal {
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #e94560;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 2rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+#terms-modal h2 {
+  color: #e94560;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+#terms-content {
+  color: #eee;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+#terms-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+#terms-content .highlight {
+  color: #e94560;
+  font-weight: bold;
+}
+
+#terms-content .warning {
+  background: rgba(233, 69, 96, 0.1);
+  border-left: 4px solid #e94560;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+#terms-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+#terms-buttons button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#btn-accept-terms {
+  background: #e94560;
+  color: white;
+}
+
+#btn-accept-terms:hover {
+  background: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+#btn-reject-terms {
+  background: transparent;
+  color: #888;
+  border: 2px solid #888;
+}
+
+#btn-reject-terms:hover {
+  border-color: #e94560;
+  color: #e94560;
+}
+
+/* ── Modal de Esperando Aprobación ────────────────────────────────────────────── */
+#approval-waiting-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#approval-waiting-overlay.hidden {
+  display: none;
+}
+
+#approval-waiting-modal {
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #ffd700;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+#approval-waiting-modal .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+#approval-waiting-modal h2 {
+  color: #ffd700;
+  margin-bottom: 1rem;
+}
+
+#approval-waiting-modal p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+#approval-waiting-modal .status {
+  display: inline-block;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid #ffd700;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #ffd700;
+  font-size: 0.9rem;
+}
+
+/* ── Modal de Bienvenida (Aprobada) ────────────────────────────────────────── */
+#welcome-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 100002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#welcome-modal-overlay.hidden {
+  display: none;
+}
+
+#welcome-modal {
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #4ade80;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+#welcome-modal .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+#welcome-modal h2 {
+  color: #4ade80;
+  margin-bottom: 1rem;
+}
+
+#welcome-modal p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+#btn-welcome-continue {
+  background: #4ade80;
+  color: #1a1a2e;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#btn-welcome-continue:hover {
+  background: #22c55e;
+  transform: translateY(-2px);
+}
+
+/* ── Modal de Rechazo ──────────────────────────────────────────────────────── */
+#rejection-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 100003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#rejection-modal-overlay.hidden {
+  display: none;
+}
+
+#rejection-modal {
+  background: linear-gradient(145deg, #1a1a2e 0%, #2d132c 100%);
+  border: 2px solid #dc2626;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+#rejection-modal .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+#rejection-modal h2 {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+#rejection-modal p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+#rejection-modal .deletion-notice {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #ff6b6b;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Modal de Nueva Usuaria para Moderador ─────────────────────────────────── */
+#new-user-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 2rem;
+  pointer-events: none;
+}
+
+#new-user-alert-overlay.hidden {
+  display: none;
+}
+
+#new-user-alert {
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #e94560;
+  border-radius: 12px;
+  max-width: 350px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+#new-user-alert .alert-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+#new-user-alert .alert-icon {
+  font-size: 1.5rem;
+}
+
+#new-user-alert h3 {
+  color: #e94560;
+  font-size: 1.1rem;
+}
+
+#new-user-alert .user-info {
+  background: rgba(233, 69, 96, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+#new-user-alert .user-name {
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+#new-user-alert .user-email {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+#new-user-alert .alert-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+#new-user-alert button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#btn-review-user {
+  background: #e94560;
+  color: white;
+}
+
+#btn-review-user:hover {
+  background: #ff6b6b;
+}
+
+#btn-dismiss-alert {
+  background: transparent;
+  color: #888;
+  border: 1px solid #888;
+}
+
+/* ── Chat de Revisión (Moderador) ──────────────────────────────────────────── */
+#review-chat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#review-chat-overlay.hidden {
+  display: none;
+}
+
+#review-chat-container {
+  background: #1a1a2e;
+  border: 2px solid #e94560;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#review-chat-header {
+  background: linear-gradient(90deg, #e94560 0%, #16213e 100%);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#review-chat-header h3 {
+  color: white;
+  margin: 0;
+}
+
+#review-chat-header .user-info {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+#review-chat-header .decision-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+#review-chat-header .decision-buttons button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#btn-approve-user {
+  background: #4ade80;
+  color: #1a1a2e;
+}
+
+#btn-reject-user {
+  background: #dc2626;
+  color: white;
+}
+
+#review-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  background: #0f0f23;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scroll-behavior: auto;
+}
+
+/* Burbujas estilo chat normal pero con tema rojo para moderación */
+#review-chat-messages .bubble-row { display: flex; gap: .5rem; }
+#review-chat-messages .bubble-row.sent { justify-content: flex-end; }
+#review-chat-messages .bubble-row.received { justify-content: flex-start; }
+
+#review-chat-messages .bubble {
+  max-width: 72%;
+  padding: .5rem .9rem;
+  font-size: .95rem;
+  color: #e2e8f0;
+  word-break: break-word;
+}
+
+/* Moderador enviando → burbuja roja (diferenciador) */
+#review-chat-messages .bubble.sent {
+  background: linear-gradient(135deg, rgba(233,69,96,0.55), rgba(180,30,60,0.40));
+  border: 1px solid rgba(233,69,96,0.50);
+  border-radius: 18px 18px 4px 18px;
+}
+
+/* Usuario recibiendo mensaje del moderador */
+#review-chat-messages .bubble.received {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Sistema */
+#review-chat-messages .system-message {
+  text-align: center;
+  color: #e94560;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 0.25rem 0;
+  opacity: 0.85;
+}
+
+#review-chat-messages .bubble .msg-time {
+  font-size: .70rem;
+  color: rgba(255,255,255,0.45);
+  margin-top: .25rem;
+  text-align: right;
+}
+
+#review-chat-messages .bubble .msg-sender {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #e94560;
+  margin-bottom: .2rem;
+}
+
+/* Botón de adjuntar archivo */
+.review-attach-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+  transition: color .2s, background .2s;
+}
+.review-attach-btn:hover {
+  color: #e94560;
+  background: rgba(233,69,96,0.12);
+}
+.review-attach-btn svg { pointer-events: none; }
+
+/* Media dentro de burbujas del review chat */
+#review-chat-messages .bubble img,
+#user-review-chat-messages .bubble img {
+  max-width: 200px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: .3rem;
+  display: block;
+}
+#review-chat-messages .bubble video,
+#user-review-chat-messages .bubble video,
+#review-chat-messages .bubble audio,
+#user-review-chat-messages .bubble audio {
+  max-width: 220px;
+  margin-top: .3rem;
+  display: block;
+}
+
+/* Input area — idéntico al chat normal */
+#review-chat-input-area {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem .8rem;
+  background: #1a1a2e;
+  border-top: 1px solid rgba(233, 69, 96, 0.3);
+  flex-shrink: 0;
+}
+
+#review-chat-input {
+  flex: 1;
+  padding: .65rem .9rem;
+  border-radius: 50px;
+  border: 1px solid rgba(233, 69, 96, 0.35);
+  background: rgba(233,69,96,0.06);
+  color: #e2e8f0;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+#review-chat-input:focus {
+  border-color: #e94560;
+}
+
+#review-chat-input::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+
+#btn-send-review-message {
+  background: #e94560;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: .6rem 1.3rem;
+  cursor: pointer;
+  font-size: .95rem;
+  font-weight: 600;
+  transition: background .2s;
+  white-space: nowrap;
+}
+
+#btn-send-review-message:hover {
+  background: #ff6b6b;
+}
+
+/* ── Estado de Moderación en Lista de Usuarias ─────────────────────────────── */
+.user-pending-badge {
+  background: #ffd700;
+  color: #1a1a2e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.user-pending-indicator {
+  width: 10px;
+  height: 10px;
+  background: #ffd700;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Contenido Bloqueado para Usuarias no Aprobadas ────────────────────────── */
+#users-list-blocked-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 26, 46, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  z-index: 100;
+}
+
+#users-list-blocked-overlay.hidden {
+  display: none;
+}
+
+#users-list-blocked-overlay .icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+#users-list-blocked-overlay h3 {
+  color: #ffd700;
+  margin-bottom: 0.75rem;
+}
+
+#users-list-blocked-overlay p {
+  color: #888;
+  font-size: 0.9rem;
+  max-width: 250px;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #terms-modal,
+  #approval-waiting-modal,
+  #welcome-modal,
+  #rejection-modal {
+    max-width: 95%;
+    padding: 1.5rem;
+  }
+  
+  #terms-buttons {
+    flex-direction: column;
+  }
+  
+  #terms-buttons button {
+    width: 100%;
+  }
+  
+  #new-user-alert {
+    max-width: 95%;
+  }
+  
+  #review-chat-container {
+    max-width: 95%;
+    height: 90vh;
+  }
+  
+  #review-chat-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  #review-chat-header .decision-buttons {
+    width: 100%;
+  }
+  
+  #review-chat-header .decision-buttons button {
+    flex: 1;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+ *  Chat de Revisión para Usuaria (cuando moderador se une)
+ * ═════════════════════════════════════════════════════════════════════════════ */
+#user-review-chat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#user-review-chat-overlay.hidden {
+  display: none;
+}
+
+#user-review-chat-container {
+  background: #1a1a2e;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid #e94560;
+}
+
+#user-review-chat-header {
+  background: linear-gradient(135deg, #e94560, #ff6b6b);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+#user-review-chat-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+}
+
+#user-review-chat-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+#user-review-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  background: #0f0f23;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scroll-behavior: auto;
+}
+
+/* Burbujas idénticas al chat normal, tema rojo para usuaria */
+#user-review-chat-messages .bubble-row { display: flex; gap: .5rem; }
+#user-review-chat-messages .bubble-row.sent { justify-content: flex-end; }
+#user-review-chat-messages .bubble-row.received { justify-content: flex-start; }
+
+#user-review-chat-messages .bubble {
+  max-width: 72%;
+  padding: .5rem .9rem;
+  font-size: .95rem;
+  color: #e2e8f0;
+  word-break: break-word;
+}
+
+/* Usuaria enviando → burbuja roja */
+#user-review-chat-messages .bubble.sent {
+  background: linear-gradient(135deg, rgba(233,69,96,0.55), rgba(180,30,60,0.40));
+  border: 1px solid rgba(233,69,96,0.50);
+  border-radius: 18px 18px 4px 18px;
+}
+
+/* Moderadora enviando → burbuja normal (igual al chat aprobado) */
+#user-review-chat-messages .bubble.received {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 18px 18px 18px 4px;
+}
+
+#user-review-chat-messages .system-message {
+  text-align: center;
+  color: #e94560;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 0.25rem 0;
+  opacity: 0.85;
+}
+
+#user-review-chat-messages .bubble .msg-time {
+  font-size: .70rem;
+  color: rgba(255,255,255,0.45);
+  margin-top: .25rem;
+  text-align: right;
+}
+
+#user-review-chat-messages .bubble .msg-sender {
+  font-size: .75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: .2rem;
+}
+
+/* Input area idéntico al chat normal */
+#user-review-chat-input-area {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem .8rem;
+  background: #1a1a2e;
+  border-top: 1px solid rgba(233, 69, 96, 0.3);
+  flex-shrink: 0;
+}
+
+#user-review-chat-input {
+  flex: 1;
+  padding: .65rem .9rem;
+  border-radius: 50px;
+  border: 1px solid rgba(233, 69, 96, 0.35);
+  background: rgba(233,69,96,0.06);
+  color: #e2e8f0;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+#user-review-chat-input:focus {
+  border-color: #e94560;
+}
+
+#user-review-chat-input::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+
+#btn-user-send-review {
+  background: #e94560;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: .6rem 1.3rem;
+  cursor: pointer;
+  font-size: .95rem;
+  font-weight: 600;
+  transition: background .2s;
+  white-space: nowrap;
+}
+
+#btn-user-send-review:hover {
+  background: #ff6b6b;
+}
