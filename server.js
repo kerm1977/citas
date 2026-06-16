@@ -29,6 +29,7 @@ const path       = require('path');
 const helmet     = require('helmet');
 const compression= require('compression');
 const { initDB } = require('./db/schema');
+const { initDefaultSettings } = require('./db/queries-admin-settings');
 
 const authRoutes    = require('./routes/auth.routes');
 const chatRoutes    = require('./routes/chat.routes');
@@ -79,6 +80,7 @@ socketHandler(io);
 const PORT = process.env.PORT || 3000;
 initDB()
   .then(() => {
+    initDefaultSettings();
     server.listen(PORT, '0.0.0.0', () =>
       console.log(`\n✅  Chat-App running → http://localhost:${PORT}\n`)
     );
