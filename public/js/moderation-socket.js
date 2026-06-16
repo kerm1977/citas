@@ -47,12 +47,14 @@ window._ModSocket = (function () {
 
     /* Detectar cuando un usuario se conecta y mostrar modal si está pendiente */
     S.socket.on('user:online', (data) => {
+      console.log('[ModSocket] user:online event', { data, pendingUsers: S.pendingReviewUsers, currentUser: S.currentUser });
       if (S.currentUser?.role !== 'superadmin') return;
       const session = Auth?.loadSession?.();
       if (!session?.user?.id) return;
       /* Solo mostrar modal si el usuario se acaba de conectar (online: true) */
       if (!data.online) return;
       const pendingUser = S.pendingReviewUsers.find(u => u.id === data.userId);
+      console.log('[ModSocket] pendingUser found:', pendingUser);
       if (pendingUser) {
         window._ModModals.showNewUserAlert(pendingUser);
       }
@@ -114,11 +116,7 @@ window._ModSocket = (function () {
         const data = await res.json();
         if (data.ok && data.users?.length > 0) {
           S.pendingReviewUsers = data.users;
-          /* Solo mostrar modal si el superusuario está logueado (tiene sesión activa) */
-          const session = Auth?.loadSession?.();
-          if (session?.user?.id) {
-            window._ModModals.showNewUserAlert(data.users[0]);
-          }
+          /* NO mostrar modal aquí - solo se mostrará cuando el usuario se loguee (evento user:online) */
         }
       } catch (e) { console.error('[ModSocket] pending-users error:', e); }
       return;
