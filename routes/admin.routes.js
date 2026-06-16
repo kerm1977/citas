@@ -83,14 +83,15 @@ router.post('/messages', (req, res) => {
   if (!receiver_id || !content) return res.json({ ok: false, msg: 'receiver_id y content requeridos' });
   try {
     const msgId = q.saveMessage({
-      sender_id: req.user.id,
-      receiver_id,
+      senderId: req.user.id,
+      receiverId: receiver_id,
       type: type || 'text',
       content,
       room: null
     });
     res.json({ ok: true, msgId });
   } catch (e) {
+    console.error('[Admin] Error sending message:', e);
     res.status(500).json({ ok: false, msg: 'Error al enviar mensaje' });
   }
 });
