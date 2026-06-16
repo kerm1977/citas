@@ -149,12 +149,10 @@
 
 /* ── Register modal message ─────────────────────────────────── */
 .register-modal-message {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 .register-info-text {
-  font-size: .85rem; line-height: 1.6; color: rgba(255,255,255,.9);
-  background: linear-gradient(135deg, rgba(239,68,68,.15) 0%, rgba(220,38,38,.1) 100%);
-  border: 1px solid rgba(239,68,68,.35);
-  border-radius: .8rem; padding: .9rem 1rem;
-  box-shadow: 0 2px 8px rgba(239,68,68,.15);
+  font-size: .85rem; line-height: 1.5; color: rgba(255,255,255,.85);
+  background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.25);
+  border-radius: .7rem; padding: .7rem .9rem;
 }
