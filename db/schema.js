@@ -95,6 +95,7 @@ async function initDB() {
       blocker_id TEXT NOT NULL,
       blocked_id TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now')),
+      expires_at TEXT,
       UNIQUE(blocker_id, blocked_id)
     )
   `);

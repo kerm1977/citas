@@ -200,6 +200,11 @@ const Admin = (() => {
             <div class="report-row report-desc"><strong>Descripción:</strong><br>${_esc(r.description || '—')}</div>
             ${r.evidence_url ? `<div class="report-row"><strong>Evidencia:</strong><br>
               <a href="${r.evidence_url}" target="_blank"><img src="${r.evidence_url}" class="report-evidence-thumb"></a></div>` : ''}
+            <div class="report-row" style="margin-top:.6rem">
+              <button class="btn btn-sm" onclick="Admin.openReportDetail('${r.id}', '${_esc(r.emitter_name || '')}', '${r.emitter_id || ''}', '${_esc(r.reporter_name || '')}', '${r.reporter_id || ''}')">
+                🔍 Ver detalle
+              </button>
+            </div>
           </div>
         </div>`).join('');
     } catch (e) {
@@ -207,9 +212,115 @@ const Admin = (() => {
     }
   }
 
+  function openReportDetail(reportId, emitterName, emitterId, reporterName, reporterId) {
+    const ov = document.createElement('div');
+    ov.className = 'report-overlay';
+    ov.innerHTML = `
+      <div class="report-card glass-card report-detail-card">
+        <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
+        <h3 class="report-title">🔍 Detalle de denuncia</h3>
+        <div class="report-detail-body">
+          <div class="report-row"><strong>Denunciado:</strong> ${_esc(emitterName || '—')}</div>
+          <div class="report-row"><strong>Reportado por:</strong> ${_esc(reporterName || '—')}</div>
+          <div class="report-detail-section">
+            <h4 class="report-detail-subtitle">⏱️ Bloquear temporalmente</h4>
+            <div class="block-time-buttons">
+              <button class="btn btn-sm block-time-btn" onclick="Admin.blockTemp('${emitterId}', 30)">30 min</button>
+              <button class="btn btn-sm block-time-btn" onclick="Admin.blockTemp('${emitterId}', 120)">2 horas</button>
+              <button class="btn btn-sm block-time-btn" onclick="Admin.blockTemp('${emitterId}', 300)">5 horas</button>
+              <button class="btn btn-sm block-time-btn" onclick="Admin.blockTemp('${emitterId}', 1440)">24 horas</button>
+            </div>
+          </div>
+          <div class="report-detail-section">
+            <h4 class="report-detail-subtitle">🗑️ Eliminar usuario</h4>
+            <button class="btn btn-sm block-btn-danger" onclick="Admin.deleteReportedUser('${emitterId}', '${_esc(emitterName || '')}')">Eliminar usuario denunciado</button>
+          </div>
+          <div class="report-detail-section">
+            <h4 class="report-detail-subtitle">💬 Enviar mensaje</h4>
+            <div class="report-msg-actions">
+              <button class="btn btn-sm" onclick="Admin.openMsgModal('${reporterId}', '${_esc(reporterName || '')}')">Al denunciante</button>
+              <button class="btn btn-sm" onclick="Admin.openMsgModal('${emitterId}', '${_esc(emitterName || '')}')">Al denunciado</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  }
+
+  async function blockTemp(emitterId, minutes) {
+    if (!emitterId) return;
+    const expiresAt = new Date(Date.now() + minutes * 60000).toISOString();
+    try {
+      const res  = await fetch('/api/blocks', {
+        method: 'POST',
+        headers: _h(),
+        body: JSON.stringify({ blocked_id: emitterId, expires_at: expiresAt })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(`Usuario bloqueado por ${minutes} minutos`);
+        document.querySelector('.report-overlay')?.remove();
+      } else {
+        alert('Error: ' + (data.msg || 'No se pudo bloquear'));
+      }
+    } catch (e) { alert('Error de red'); }
+  }
+
+  async function deleteReportedUser(userId, name) {
+    if (!confirm(`¿Eliminar al usuario "${name}"? Esta acción es irreversible.`)) return;
+    try {
+      const res  = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE', headers: _h() });
+      const data = await res.json();
+      if (data.ok) {
+        alert('Usuario eliminado');
+        document.querySelector('.report-overlay')?.remove();
+        loadReports();
+      } else {
+        alert('Error: ' + (data.msg || 'No se pudo eliminar'));
+      }
+    } catch (e) { alert('Error de red'); }
+  }
+
+  function openMsgModal(userId, name) {
+    const ov = document.createElement('div');
+    ov.className = 'report-overlay';
+    ov.innerHTML = `
+      <div class="report-card glass-card">
+        <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
+        <h3 class="report-title">💬 Mensaje a ${_esc(name || 'usuario')}</h3>
+        <div class="report-field">
+          <textarea id="admin-msg-content" class="report-textarea" placeholder="Escribe tu mensaje..."></textarea>
+        </div>
+        <button id="admin-msg-send" class="btn report-submit-btn">Enviar</button>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('#admin-msg-send').onclick = async () => {
+      const content = ov.querySelector('#admin-msg-content').value.trim();
+      if (!content) { alert('Escribe un mensaje'); return; }
+      const btn = ov.querySelector('#admin-msg-send');
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        const res  = await fetch('/api/admin/messages', {
+          method: 'POST',
+          headers: _h(),
+          body: JSON.stringify({ receiver_id: userId, content, type: 'text' })
+        });
+        const data = await res.json();
+        ov.remove();
+        if (data.ok) {
+          alert('Mensaje enviado');
+        } else {
+          alert('Error: ' + (data.msg || 'No se pudo enviar'));
+        }
+      } catch (e) { ov.remove(); alert('Error de red'); }
+    };
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  }
+
   function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports };
+  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal };
 })();
 
 window.Admin = Admin;

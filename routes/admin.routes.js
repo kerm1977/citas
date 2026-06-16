@@ -77,4 +77,22 @@ router.get('/media', (_req, res) => {
   res.json({ ok: true, files });
 });
 
+/* POST /api/admin/messages — enviar mensaje directo desde admin a usuario */
+router.post('/messages', (req, res) => {
+  const { receiver_id, content, type } = req.body;
+  if (!receiver_id || !content) return res.json({ ok: false, msg: 'receiver_id y content requeridos' });
+  try {
+    const msgId = q.saveMessage({
+      sender_id: req.user.id,
+      receiver_id,
+      type: type || 'text',
+      content,
+      room: null
+    });
+    res.json({ ok: true, msgId });
+  } catch (e) {
+    res.status(500).json({ ok: false, msg: 'Error al enviar mensaje' });
+  }
+});
+
 module.exports = router;

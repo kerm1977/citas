@@ -4,13 +4,13 @@ const router   = express.Router();
 const q        = require('../db/queries');
 const { authRequired } = require('../middleware/auth.middleware');
 
-/* POST /api/blocks — bloquear usuario */
+/* POST /api/blocks — bloquear usuario (admite expires_at para temporal) */
 router.post('/', authRequired, (req, res) => {
-  const { blocked_id } = req.body;
+  const { blocked_id, expires_at } = req.body;
   if (!blocked_id) return res.json({ ok: false, msg: 'blocked_id requerido' });
   if (blocked_id === req.user.id) return res.json({ ok: false, msg: 'No puedes bloquearte a ti mismo' });
   try {
-    q.blockUser(req.user.id, blocked_id);
+    q.blockUser(req.user.id, blocked_id, expires_at);
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ ok: false, msg: 'Error al bloquear' });

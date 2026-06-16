@@ -114,3 +114,23 @@
   transition: background .2s;
 }
 .blocked-unblock-btn:hover { background: rgba(167,139,250,.3); }
+
+/* ── Report detail modal (admin) ───────────────────────────── */
+.report-detail-card { max-width: 500px; padding: 1.6rem 1.4rem; }
+.report-detail-body { display: flex; flex-direction: column; gap: 1rem; }
+.report-detail-section {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12);
+  border-radius: .7rem; padding: .8rem .9rem;
+}
+.report-detail-subtitle {
+  font-size: .85rem; font-weight: 700; margin-bottom: .5rem;
+  color: var(--text-muted, #aaa);
+}
+.block-time-buttons { display: flex; gap: .5rem; flex-wrap: wrap; }
+.block-time-btn {
+  background: rgba(167,139,250,.18); border: 1px solid rgba(167,139,250,.35);
+  font-size: .78rem; padding: .35rem .7rem; font-weight: 600;
+  transition: background .2s;
+}
+.block-time-btn:hover { background: rgba(167,139,250,.3); }
+.report-msg-actions { display: flex; gap: .5rem; flex-wrap: wrap; }

@@ -2,11 +2,11 @@
 const { randomUUID } = require('crypto');
 const { dbGet, dbAll, dbRun } = require('./db-core');
 
-function blockUser(blockerId, blockedId) {
+function blockUser(blockerId, blockedId, expiresAt) {
   try {
     dbRun(
-      `INSERT OR IGNORE INTO blocks (id, blocker_id, blocked_id) VALUES (?,?,?)`,
-      [randomUUID(), blockerId, blockedId]
+      `INSERT OR IGNORE INTO blocks (id, blocker_id, blocked_id, expires_at) VALUES (?,?,?,?)`,
+      [randomUUID(), blockerId, blockedId, expiresAt || null]
     );
   } catch (e) { /* UNIQUE constraint: ya bloqueado */ }
 }
