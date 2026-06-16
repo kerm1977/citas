@@ -17,14 +17,23 @@ router.post('/', authRequired, (req, res) => {
   }
 });
 
-/* DELETE /api/blocks/:blocked_id — desbloquear */
+/* DELETE /api/blocks/:blocked_id — desbloquear (requiere contraseña) */
 router.delete('/:blocked_id', authRequired, (req, res) => {
-  try {
-    q.unblockUser(req.user.id, req.params.blocked_id);
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ ok: false, msg: 'Error al desbloquear' });
-  }
+  const { password } = req.body;
+  if (!password) return res.json({ ok: false, msg: 'Contraseña requerida' });
+  const bcrypt = require('bcryptjs');
+  const qUsers = require('../db/queries-users');
+  const user = qUsers.getUserById(req.user.id);
+  if (!user) return res.json({ ok: false, msg: 'Usuario no encontrado' });
+  bcrypt.compare(password, user.password, (err, match) => {
+    if (err || !match) return res.json({ ok: false, msg: 'Contraseña incorrecta' });
+    try {
+      q.unblockUser(req.user.id, req.params.blocked_id);
+      res.json({ ok: true });
+    } catch (e) {
+      res.status(500).json({ ok: false, msg: 'Error al desbloquear' });
+    }
+  });
 });
 
 /* GET /api/blocks — lista de usuarios bloqueados por mí */
