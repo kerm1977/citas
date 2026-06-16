@@ -283,6 +283,7 @@ const Admin = (() => {
   }
 
   function openMsgModal(userId, name) {
+    if (!userId) { alert('ID de usuario no disponible'); return; }
     const ov = document.createElement('div');
     ov.className = 'report-overlay';
     ov.innerHTML = `

@@ -19,6 +19,7 @@ function createReport({ reporterId, emitterId, receiverId, messageId, room, desc
 function getReports() {
   return dbAll(
     `SELECT r.id, r.description, r.evidence_url, r.room, r.message_id, r.created_at,
+            r.reporter_id, r.emitter_id, r.receiver_id,
             ur.name  AS reporter_name,
             ue.name  AS emitter_name,
             uc.name  AS receiver_name
