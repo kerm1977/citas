@@ -34,14 +34,28 @@ window._ModSocket = (function () {
       /* Verificar que el usuario tenga sesión activa */
       const session = Auth?.loadSession?.();
       if (!session?.user?.id) return;
+      /* NO mostrar modal inmediatamente - esperar a que el usuario nuevo se loguee */
       if (!S.pendingReviewUsers.find(u => u.id === data.id)) {
         S.pendingReviewUsers.push(data);
       }
-      window._ModModals.showNewUserAlert(data);
+      /* No llamar showNewUserAlert aquí - se llamará cuando el usuario se loguee */
     });
 
     S.socket.on('chat:user_list_refresh', () => {
       if (typeof Chat !== 'undefined' && Chat.loadUsers) Chat.loadUsers();
+    });
+
+    /* Detectar cuando un usuario se conecta y mostrar modal si está pendiente */
+    S.socket.on('user:online', (data) => {
+      if (S.currentUser?.role !== 'superadmin') return;
+      const session = Auth?.loadSession?.();
+      if (!session?.user?.id) return;
+      /* Solo mostrar modal si el usuario se acaba de conectar (online: true) */
+      if (!data.online) return;
+      const pendingUser = S.pendingReviewUsers.find(u => u.id === data.userId);
+      if (pendingUser) {
+        window._ModModals.showNewUserAlert(pendingUser);
+      }
     });
 
     /* ⚠️ CRÍTICO — filtrar por sender_id para evitar duplicados en ambos lados */
