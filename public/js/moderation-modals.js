@@ -149,7 +149,11 @@ window._ModModals = (function () {
   }
 
   function showNewUserAlert(userData) {
+    /* Verificación triple: rol, sesión activa, y que no sea el propio usuario */
     if (S.currentUser?.role !== 'superadmin') return;
+    const session = Auth?.loadSession?.();
+    if (!session?.user?.id) return;
+    if (session.user.role !== 'superadmin') return;
     document.getElementById('new-user-name').textContent  = userData.name;
     document.getElementById('new-user-email').textContent = userData.email;
     document.getElementById('new-user-alert-overlay').classList.remove('hidden');

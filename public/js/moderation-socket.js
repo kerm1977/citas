@@ -31,6 +31,9 @@ window._ModSocket = (function () {
       /* Solo mostrar modal si el superusuario está logueado y conectado */
       if (S.currentUser?.role !== 'superadmin') return;
       if (!S.currentUser?.id) return;
+      /* Verificar que el usuario tenga sesión activa */
+      const session = Auth?.loadSession?.();
+      if (!session?.user?.id) return;
       if (!S.pendingReviewUsers.find(u => u.id === data.id)) {
         S.pendingReviewUsers.push(data);
       }
@@ -97,8 +100,9 @@ window._ModSocket = (function () {
         const data = await res.json();
         if (data.ok && data.users?.length > 0) {
           S.pendingReviewUsers = data.users;
-          /* Solo mostrar modal si el superusuario está logueado (tiene ID) */
-          if (S.currentUser?.id) {
+          /* Solo mostrar modal si el superusuario está logueado (tiene sesión activa) */
+          const session = Auth?.loadSession?.();
+          if (session?.user?.id) {
             window._ModModals.showNewUserAlert(data.users[0]);
           }
         }
