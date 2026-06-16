@@ -174,6 +174,7 @@ const Chat = (() => {
     _deleteMsg: ChatMessages.deleteMessage,
     _toggleMessageMenu: ChatModal.toggleMessageMenu,
     closeSuperuserModal: ChatUI.closeSuperuserModal,
-    openSuperuserChat: ChatUI.openSuperuserChat
+    openSuperuserChat: ChatUI.openSuperuserChat,
+    reportMessage: (msgId) => window.ReportModal?.open(msgId)
   };
 })();

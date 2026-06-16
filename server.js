@@ -30,10 +30,11 @@ const helmet     = require('helmet');
 const compression= require('compression');
 const { initDB } = require('./db/schema');
 
-const authRoutes   = require('./routes/auth.routes');
-const chatRoutes   = require('./routes/chat.routes');
-const adminRoutes  = require('./routes/admin.routes');
-const backupRoutes = require('./routes/backup.routes');
+const authRoutes    = require('./routes/auth.routes');
+const chatRoutes    = require('./routes/chat.routes');
+const adminRoutes   = require('./routes/admin.routes');
+const backupRoutes  = require('./routes/backup.routes');
+const reportsRoutes = require('./routes/reports.routes');
 const { socketHandler } = require('./socket/socket.handler');
 
 const app    = express();
@@ -61,10 +62,11 @@ app.get('/vendor/bcrypt.min.js', (_req, res) => {
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0, etag: false }));
 app.use('/uploads', express.static(path.join(__dirname, 'data/uploads')));
 
-app.use('/api/auth',   authRoutes(io));
-app.use('/api/chat',   chatRoutes(io));
-app.use('/api/admin',  adminRoutes);
-app.use('/api/backup', backupRoutes);
+app.use('/api/auth',    authRoutes(io));
+app.use('/api/chat',    chatRoutes(io));
+app.use('/api/admin',   adminRoutes);
+app.use('/api/backup',  backupRoutes);
+app.use('/api/reports', reportsRoutes);
 
 app.get('*', (_req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html'))

@@ -1,13 +1,14 @@
 /* +---------------------------------------------------------------------------+
- * ¦  DB/QUERIES — ORQUESTADOR — re-exporta sub-módulos — NO MODIFICAR       ¦
- * ¦  · queries-users.js      ? CRUD de usuarios                             ¦
- * ¦  · queries-messages.js   ? mensajes                                     ¦
- * ¦  · queries-moderation.js ? aprobación / rechazo / contactos             ¦
+ * Â¦  DB/QUERIES â€” ORQUESTADOR â€” re-exporta sub-mÃ³dulos â€” NO MODIFICAR       Â¦
+ * Â¦  Â· queries-users.js      ? CRUD de usuarios                             Â¦
+ * Â¦  Â· queries-messages.js   ? mensajes                                     Â¦
+ * Â¦  Â· queries-moderation.js ? aprobaciÃ³n / rechazo / contactos             Â¦
  * +---------------------------------------------------------------------------+ */
 'use strict';
 
 const u   = require('./queries-users');
 const m   = require('./queries-messages');
 const mod = require('./queries-moderation');
+const rep = require('./queries-reports');
 
-module.exports = { ...u, ...m, ...mod };
+module.exports = { ...u, ...m, ...mod, ...rep };

@@ -113,7 +113,7 @@ const Admin = (() => {
 
   async function init() {
     if (!_isAdmin()) return;
-    await Promise.all([loadStats(), loadUsers(), loadMedia()]);
+    await Promise.all([loadStats(), loadUsers(), loadMedia(), loadReports()]);
     /* Show admin button in chat sidebar */
     const btn = document.getElementById('btn-admin-panel');
     if (btn) btn.style.display = '';
@@ -178,9 +178,38 @@ const Admin = (() => {
     }
   }
 
+  async function loadReports() {
+    if (!_isAdmin()) return;
+    const el = document.getElementById('admin-reports-list');
+    if (!el) return;
+    try {
+      const res  = await fetch('/api/reports', { headers: _h() });
+      const data = await res.json();
+      if (!data.ok) { el.innerHTML = '<p class="admin-empty">Error al cargar denuncias.</p>'; return; }
+      if (!data.reports.length) { el.innerHTML = '<p class="admin-empty">No hay denuncias registradas.</p>'; return; }
+      el.innerHTML = data.reports.map(r => `
+        <div class="report-item">
+          <div class="report-item-header">
+            <span class="report-badge">🚨 Denuncia</span>
+            <span class="report-date">${new Date(r.created_at).toLocaleString('es-MX')}</span>
+          </div>
+          <div class="report-item-body">
+            <div class="report-row"><strong>Emisor:</strong> ${_esc(r.emitter_name  || '—')}</div>
+            <div class="report-row"><strong>Receptor:</strong> ${_esc(r.receiver_name || '—')}</div>
+            <div class="report-row"><strong>Reportado por:</strong> ${_esc(r.reporter_name || '—')}</div>
+            <div class="report-row report-desc"><strong>Descripción:</strong><br>${_esc(r.description || '—')}</div>
+            ${r.evidence_url ? `<div class="report-row"><strong>Evidencia:</strong><br>
+              <a href="${r.evidence_url}" target="_blank"><img src="${r.evidence_url}" class="report-evidence-thumb"></a></div>` : ''}
+          </div>
+        </div>`).join('');
+    } catch (e) {
+      el.innerHTML = '<p class="admin-empty">Error de red.</p>';
+    }
+  }
+
   function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia };
+  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports };
 })();
 
 window.Admin = Admin;

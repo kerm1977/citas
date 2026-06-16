@@ -131,6 +131,10 @@ const ChatModal = (() => {
       optionsHtml += `<button class="dropdown-item" onclick="Chat.downloadImageFromUrl('${msgContent}')">📥 Descargar imagen</button>`;
     }
 
+    /* Opción Reportar — disponible para todos */
+    optionsHtml += `<hr style="width:100%;border:none;border-top:1px solid rgba(255,255,255,0.2);margin:.3rem 0">`;
+    optionsHtml += `<button class="dropdown-item dropdown-report" onclick="Chat.reportMessage('${msgId}')">🚨 Reportar mensaje</button>`;
+
     /* Guardar msgId y room en el dropdown para usar en la función de respuesta */
     dropdown.dataset.msgId = msgId;
     dropdown.dataset.room = room;

@@ -36,9 +36,11 @@ window.ChatAppend = (function() {
     if (!c) return;
     const row = document.createElement('div');
     row.className = 'bubble-row ' + (sent ? 'sent' : 'received');
-    row.dataset.msgId = msg.id;
-    row.dataset.room = msg.room || '';
-    row.dataset.sent = sent;
+    row.dataset.msgId      = msg.id;
+    row.dataset.room       = msg.room || '';
+    row.dataset.sent       = sent;
+    row.dataset.senderId   = msg.sender_id   || '';
+    row.dataset.senderName = msg.sender_name || '';
 
     /* Indicador de respuesta */
     let replyHtml = '';

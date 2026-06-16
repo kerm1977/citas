@@ -1,0 +1,76 @@
+/* ── Report Modal Overlay ──────────────────────────────────── */
+.report-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.report-card {
+  position: relative; width: 100%; max-width: 460px;
+  padding: 1.8rem 1.5rem; border-radius: 1.2rem;
+  background: var(--glass-bg, rgba(30,20,50,.92));
+  box-shadow: 0 8px 40px rgba(0,0,0,.5); color: var(--text-primary, #fff);
+}
+.report-close {
+  position: absolute; top: .8rem; right: .9rem;
+  background: transparent; border: none; color: #fff; font-size: 1.1rem;
+  cursor: pointer; opacity: .7; transition: opacity .2s;
+}
+.report-close:hover { opacity: 1; }
+.report-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 1.1rem; }
+.report-field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .85rem; }
+.report-field label { font-size: .78rem; opacity: .75; font-weight: 600; }
+.req { color: #f87171; }
+.report-input-ro {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  border-radius: .5rem; padding: .45rem .7rem; color: #fff; font-size: .88rem;
+  cursor: default;
+}
+.report-textarea {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
+  border-radius: .5rem; padding: .55rem .7rem; color: #fff; font-size: .88rem;
+  resize: vertical; min-height: 90px; font-family: inherit;
+  transition: border-color .2s;
+}
+.report-textarea:focus { outline: none; border-color: var(--primary, #a78bfa); }
+.report-clip-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(167,139,250,.18); border: 1px solid rgba(167,139,250,.4);
+  border-radius: .5rem; padding: .4rem .8rem; cursor: pointer;
+  font-size: .83rem; font-weight: 600; transition: background .2s;
+}
+.report-clip-btn:hover { background: rgba(167,139,250,.28); }
+.report-filename { font-size: .78rem; opacity: .7; margin-top: .25rem; }
+.report-submit-btn {
+  width: 100%; margin-top: .5rem; padding: .65rem;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  font-weight: 700; font-size: .93rem;
+}
+.report-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Denuncias en panel admin ──────────────────────────────── */
+.reports-section-title { color: #f87171 !important; margin-top: 1.5rem !important; }
+.admin-reports-list { display: flex; flex-direction: column; gap: .9rem; margin-bottom: 1.5rem; }
+.admin-empty { padding: .8rem 0; color: var(--text-muted, #aaa); font-size: .88rem; }
+.report-item {
+  background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.25);
+  border-radius: .9rem; overflow: hidden;
+}
+.report-item-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .6rem 1rem; background: rgba(248,113,113,.12);
+}
+.report-badge { font-weight: 700; font-size: .83rem; color: #f87171; }
+.report-date  { font-size: .78rem; opacity: .7; }
+.report-item-body { padding: .8rem 1rem; display: flex; flex-direction: column; gap: .45rem; }
+.report-row { font-size: .88rem; }
+.report-desc { margin-top: .2rem; line-height: 1.5; }
+.report-evidence-thumb {
+  max-width: 200px; max-height: 150px; border-radius: .5rem;
+  margin-top: .35rem; border: 1px solid rgba(255,255,255,.15);
+  cursor: pointer; transition: opacity .2s;
+}
+.report-evidence-thumb:hover { opacity: .85; }
+
+/* ── Dropdown report button ────────────────────────────────── */
+.dropdown-report { color: #f87171 !important; }
+.dropdown-report:hover { background: rgba(248,113,113,.18) !important; }
