@@ -79,6 +79,13 @@ window._ModSocket = (function () {
     });
 
     S.socket.on('moderation:rejected', () => {
+      /* Si es superusuario, cerrar chat de revisión y volver al chat normal sin modales */
+      if (S.currentUser?.role === 'superadmin') {
+        window._ModChat._closeReviewChat();
+        window._ModModals._dismissNewUserAlert();
+        return;
+      }
+      /* Si es usuario rechazado, mostrar modal de rechazo */
       window._ModModals.hideApprovalWaiting();
       window._ModModals.showRejectionModal();
     });

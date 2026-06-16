@@ -125,6 +125,12 @@ window._ModChat = (function () {
     }
   }
 
+  function _closeReviewChat() {
+    const overlay = document.getElementById('review-chat-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    S.activeReviewChat = null;
+  }
+
   function _showReviewChatForUser() {
     if (!document.getElementById('user-review-chat-overlay')) {
       document.body.insertAdjacentHTML('beforeend', `
@@ -186,6 +192,7 @@ window._ModChat = (function () {
   return {
     _initReviewChat, _openReviewChat, _sendReviewMessage, _decideUser,
     _showReviewChatForUser, _sendUserReviewMessage, _sendReviewFile,
-    _renderReviewMedia, _appendReviewMessage, _appendModeratorMessage, _appendSystemMessage
+    _renderReviewMedia, _appendReviewMessage, _appendModeratorMessage, _appendSystemMessage,
+    _closeReviewChat
   };
 })();
