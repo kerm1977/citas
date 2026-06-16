@@ -33,7 +33,7 @@ const { initDefaultSettings } = require('./db/queries-admin-settings');
 
 const authRoutes    = require('./routes/auth.routes');
 const chatRoutes    = require('./routes/chat.routes');
-const adminRoutes   = require('./routes/admin.routes');
+const { router: adminRoutes, publicRouter } = require('./routes/admin.routes');
 const backupRoutes  = require('./routes/backup.routes');
 const reportsRoutes = require('./routes/reports.routes');
 const blocksRoutes  = require('./routes/blocks.routes');
@@ -67,6 +67,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'data/uploads')));
 app.use('/api/auth',    authRoutes(io));
 app.use('/api/chat',    chatRoutes(io));
 app.use('/api/admin',   adminRoutes);
+app.use('/api/public',  publicRouter);
 app.use('/api/backup',  backupRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/blocks',  blocksRoutes);

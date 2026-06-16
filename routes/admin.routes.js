@@ -101,6 +101,14 @@ router.post('/settings', (req, res) => {
   res.json({ ok: true });
 });
 
+/* GET /api/public/register-message — endpoint público para mensaje de registro */
+const express = require('express');
+const publicRouter = express.Router();
+publicRouter.get('/register-message', (_req, res) => {
+  const msg = q.getSetting('register_message') || '';
+  res.json({ ok: true, message: msg });
+});
+
 /* POST /api/admin/messages — enviar mensaje directo desde admin a usuario */
 router.post('/messages', (req, res) => {
   const { receiver_id, content, type } = req.body;
@@ -122,4 +130,4 @@ router.post('/messages', (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = { router, publicRouter };

@@ -131,10 +131,10 @@ const Router = (() => {
     const el = document.getElementById('register-modal-message');
     if (!el) return;
     try {
-      const res = await fetch('/api/admin/settings');
+      const res = await fetch('/api/public/register-message');
       const data = await res.json();
-      if (data.ok && data.settings.register_message) {
-        el.innerHTML = `<div class="register-info-text">${_esc(data.settings.register_message)}</div>`;
+      if (data.ok && data.message) {
+        el.innerHTML = `<div class="register-info-text">${_esc(data.message)}</div>`;
       } else {
         el.innerHTML = '';
       }
