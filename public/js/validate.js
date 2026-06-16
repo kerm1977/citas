@@ -44,8 +44,6 @@ const Validate = (() => {
   function password(val) {
     if (!val) return 'La contraseña es requerida';
     if (val.length < 8) return 'Mínimo 8 caracteres';
-    if (!/[A-Z]/.test(val)) return 'Al menos una letra mayúscula';
-    if (!/[0-9]/.test(val)) return 'Al menos un número';
     return '';
   }
 

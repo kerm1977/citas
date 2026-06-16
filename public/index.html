@@ -43,7 +43,7 @@
     <form id="form-login" novalidate>
       <div class="form-group">
         <label class="form-label">Correo electrónico</label>
-        <input id="l-email" type="email" class="form-control" placeholder="tu@correo.com" autocomplete="email"/>
+        <input id="l-email" type="email" class="form-control" placeholder="tu@correo.com" autocomplete="email" oninput="this.value = this.value.toLowerCase()"/>
         <span class="form-error" id="l-email-err"></span>
       </div>
       <div class="form-group">
@@ -91,7 +91,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Correo electrónico</label>
-        <input id="r-email" type="email" class="form-control" placeholder="tu@correo.com"/>
+        <input id="r-email" type="email" class="form-control" placeholder="tu@correo.com" oninput="this.value = this.value.toLowerCase()"/>
         <span class="form-error" id="r-email-err"></span>
       </div>
       <div class="form-group">
@@ -316,7 +316,7 @@
 <!-- App scripts -->
 <script src="/js/antifreeze.js?v=2"></script>
 <script src="/js/crypto.js?v=2"></script>
-<script src="/js/validate.js?v=2"></script>
+<script src="/js/validate.js?v=3"></script>
 <script src="/js/avatar.js?v=2"></script>
 <script src="/js/backup.js?v=2"></script>
 <script src="/js/auth.js?v=5"></script>
