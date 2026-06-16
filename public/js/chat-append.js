@@ -54,6 +54,9 @@ window.ChatAppend = (function() {
         } catch {
           replyContent = replyMsg.content;
         }
+      } else {
+        /* Para imágenes/archivos, mostrar solo el nombre del archivo */
+        replyContent = replyContent.split('/').pop() || replyContent;
       }
       const replyPreview = replyContent.slice(0, 50) + (replyContent.length > 50 ? '...' : '');
       const replySender = replyMsg.sender_name || 'Alguien';
