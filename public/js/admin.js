@@ -413,7 +413,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings };
+  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;
