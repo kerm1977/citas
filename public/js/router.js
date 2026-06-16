@@ -64,11 +64,12 @@ const Router = (() => {
       Admin.loadUsers();
       Admin.loadMedia();
       Admin.loadReports?.();
+      Admin.loadInterfaceSettings?.();
     }
     if (route === 'account') { _renderAccount(); window.BlockManager?.loadBlockedUsers(); }
   }
 
-  function _renderAccount() {
+  async function _renderAccount() {
     const u    = window._session?.user;
     if (!u) return;
     const zone = document.getElementById('acct-avatar-zone');
@@ -97,6 +98,19 @@ const Router = (() => {
         <div class="acct-info-row">Teléfono: <span>${_esc(u.phone||'-')}</span></div>
         <div class="acct-info-row">Rol: <span>${_esc(u.role)}</span></div>
       </div>`;
+    /* Mostrar advertencia si warning_active = 1 */
+    if (u.warning_active) {
+      try {
+        const res  = await fetch('/api/admin/settings');
+        const data = await res.json();
+        if (data.ok && data.settings.warning_message) {
+          const warningEl = document.createElement('div');
+          warningEl.className = 'acct-warning-box';
+          warningEl.innerHTML = `<div class="acct-warning-title">⚠️ Advertencia</div><div class="acct-warning-text">${_esc(data.settings.warning_message)}</div>`;
+          document.querySelector('.auth-card')?.appendChild(warningEl);
+        }
+      } catch (e) { /* silencioso */ }
+    }
   }
 
   function _dataUrlToBlob(d) {

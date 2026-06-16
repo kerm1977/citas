@@ -42,6 +42,12 @@ async function initDB() {
     /* La columna ya existe, ignorar error */
   }
 
+  try {
+    dbExec(`ALTER TABLE users ADD COLUMN warning_active INTEGER DEFAULT 0`);
+  } catch (e) {
+    /* La columna ya existe, ignorar error */
+  }
+
   dbExec(`
     CREATE TABLE IF NOT EXISTS messages (
       id          TEXT PRIMARY KEY,
@@ -97,6 +103,13 @@ async function initDB() {
       created_at TEXT DEFAULT (datetime('now')),
       expires_at TEXT,
       UNIQUE(blocker_id, blocked_id)
+    )
+  `);
+
+  dbExec(`
+    CREATE TABLE IF NOT EXISTS admin_settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
     )
   `);
 

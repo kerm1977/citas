@@ -134,3 +134,15 @@
 }
 .block-time-btn:hover { background: rgba(167,139,250,.3); }
 .report-msg-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ── Warning box en perfil de usuario ─────────────────────────── */
+.acct-warning-box {
+  background: rgba(234,179,8,.12); border: 1px solid rgba(234,179,8,.4);
+  border-radius: .8rem; padding: .9rem 1rem; margin-top: 1.2rem;
+}
+.acct-warning-title {
+  font-size: .9rem; font-weight: 700; color: #facc15; margin-bottom: .4rem;
+}
+.acct-warning-text {
+  font-size: .85rem; line-height: 1.5; color: rgba(255,255,255,.9);
+}

@@ -77,6 +77,27 @@ router.get('/media', (_req, res) => {
   res.json({ ok: true, files });
 });
 
+/* PATCH /api/admin/users/:id/warning — activar/desactivar advertencia */
+router.patch('/users/:id/warning', (req, res) => {
+  const { active } = req.body;
+  q.setWarningActive(req.params.id, !!active);
+  res.json({ ok: true });
+});
+
+/* GET /api/admin/settings — obtener configuración de admin */
+router.get('/settings', (_req, res) => {
+  const warningMessage = q.getSetting('warning_message') || '';
+  res.json({ ok: true, settings: { warning_message: warningMessage } });
+});
+
+/* POST /api/admin/settings — guardar configuración de admin */
+router.post('/settings', (req, res) => {
+  const { warning_message } = req.body;
+  if (typeof warning_message !== 'string') return res.json({ ok: false, msg: 'warning_message debe ser texto' });
+  q.setSetting('warning_message', warning_message);
+  res.json({ ok: true });
+});
+
 /* POST /api/admin/messages — enviar mensaje directo desde admin a usuario */
 router.post('/messages', (req, res) => {
   const { receiver_id, content, type } = req.body;

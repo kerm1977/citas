@@ -293,12 +293,19 @@ const Admin = (() => {
         <div class="report-field">
           <textarea id="admin-msg-content" class="report-textarea" placeholder="Escribe tu mensaje..."></textarea>
         </div>
+        <div class="report-field" style="margin-top:.5rem">
+          <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer">
+            <input type="checkbox" id="admin-activate-warning">
+            Activar advertencia en el perfil del usuario
+          </label>
+        </div>
         <button id="admin-msg-send" class="btn report-submit-btn">Enviar</button>
       </div>`;
     document.body.appendChild(ov);
     ov.querySelector('#admin-msg-send').onclick = async () => {
       const content = ov.querySelector('#admin-msg-content').value.trim();
       if (!content) { alert('Escribe un mensaje'); return; }
+      const activateWarning = ov.querySelector('#admin-activate-warning').checked;
       const btn = ov.querySelector('#admin-msg-send');
       btn.disabled = true; btn.textContent = 'Enviando…';
       try {
@@ -308,9 +315,16 @@ const Admin = (() => {
           body: JSON.stringify({ receiver_id: userId, content, type: 'text' })
         });
         const data = await res.json();
+        if (data.ok && activateWarning) {
+          await fetch(`/api/admin/users/${userId}/warning`, {
+            method: 'PATCH',
+            headers: _h(),
+            body: JSON.stringify({ active: true })
+          });
+        }
         ov.remove();
         if (data.ok) {
-          alert('Mensaje enviado');
+          alert('Mensaje enviado' + (activateWarning ? ' y advertencia activada' : ''));
         } else {
           alert('Error: ' + (data.msg || 'No se pudo enviar'));
         }
@@ -321,7 +335,40 @@ const Admin = (() => {
 
   function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal };
+  async function loadInterfaceSettings() {
+    const el = document.getElementById('admin-interface-settings');
+    if (!el) return;
+    try {
+      const res  = await fetch('/api/admin/settings', { headers: _h() });
+      const data = await res.json();
+      if (!data.ok) { el.innerHTML = '<p class="admin-empty">Error al cargar configuración.</p>'; return; }
+      const msg = data.settings.warning_message || '';
+      el.innerHTML = `
+        <div class="admin-settings-field">
+          <label class="admin-settings-label">Mensaje de advertencia para usuarios denunciados:</label>
+          <textarea id="admin-warning-message" class="admin-settings-textarea" rows="4">${_esc(msg)}</textarea>
+          <button id="admin-save-warning" class="btn btn-sm" style="margin-top:.5rem">Guardar</button>
+        </div>`;
+      el.querySelector('#admin-save-warning').onclick = async () => {
+        const newMsg = el.querySelector('#admin-warning-message').value;
+        const btn = el.querySelector('#admin-save-warning');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          const r = await fetch('/api/admin/settings', {
+            method: 'POST',
+            headers: _h(),
+            body: JSON.stringify({ warning_message: newMsg })
+          });
+          const d = await r.json();
+          btn.disabled = false; btn.textContent = 'Guardar';
+          if (d.ok) alert('Configuración guardada');
+          else alert('Error: ' + (d.msg || 'No se pudo guardar'));
+        } catch (e) { btn.disabled = false; btn.textContent = 'Guardar'; alert('Error de red'); }
+      };
+    } catch (e) { el.innerHTML = '<p class="admin-empty">Error de red.</p>'; }
+  }
+
+  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings };
 })();
 
 window.Admin = Admin;

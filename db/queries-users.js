@@ -56,6 +56,9 @@ function updatePassword(id, hash) {
 function setUserRole(id, role) {
   dbRun('UPDATE users SET role=? WHERE id=? AND is_hidden=0', [role, id]);
 }
+function setWarningActive(id, active) {
+  dbRun('UPDATE users SET warning_active=? WHERE id=?', [active ? 1 : 0, id]);
+}
 function countUsers() {
   const r = dbGet('SELECT COUNT(*) AS c FROM users WHERE is_hidden=0', []);
   return r?.c || 0;
@@ -73,5 +76,5 @@ module.exports = {
   createUser, getUserByEmail, getUserByEmailAny, getUserById,
   getAllUsers, getAllUsersIncludingHidden, updateUserOnline,
   updateUserAvatar, blockUser, deleteUser, getUserByRecovery,
-  updatePassword, setUserRole, countUsers, countOnline, countMessages
+  updatePassword, setUserRole, setWarningActive, countUsers, countOnline, countMessages
 };

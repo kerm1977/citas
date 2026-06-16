@@ -11,5 +11,6 @@ const m   = require('./queries-messages');
 const mod = require('./queries-moderation');
 const rep = require('./queries-reports');
 const blk = require('./queries-blocks');
+const adm = require('./queries-admin-settings');
 
-module.exports = { ...u, ...m, ...mod, ...rep, ...blk };
+module.exports = { ...u, ...m, ...mod, ...rep, ...blk, ...adm };
