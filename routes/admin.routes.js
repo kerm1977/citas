@@ -82,12 +82,14 @@ router.post('/messages', (req, res) => {
   const { receiver_id, content, type } = req.body;
   if (!receiver_id || !content) return res.json({ ok: false, msg: 'receiver_id y content requeridos' });
   try {
+    /* Generar room temporal para mensaje directo: adminId_userId */
+    const room = [req.user.id, receiver_id].sort().join('_');
     const msgId = q.saveMessage({
       senderId: req.user.id,
       receiverId: receiver_id,
       type: type || 'text',
       content,
-      room: null
+      room
     });
     res.json({ ok: true, msgId });
   } catch (e) {
