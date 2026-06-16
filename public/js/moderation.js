@@ -1,15 +1,15 @@
 ﻿console.log('[ModerationSystem] File loading started...');
 
 /* +---------------------------------------------------------------------------+
- * �  MODERATION.JS � COORDINADOR DELGADO � NO MODIFICAR                     �
- * �  Sub-m�dulos (cargar en orden):                                          �
- * �    1. moderation-state.js   ? window._MS (estado compartido)            �
- * �    2. moderation-modals.js  ? window._ModModals                         �
- * �    3. moderation-chat.js    ? window._ModChat                           �
- * �    4. moderation-socket.js  ? window._ModSocket                         �
- * �    5. moderation.js (este)  ? window.ModerationSystem (API p�blica)     �
- * �  ?? initForRegistration() es la �NICA entrada para registro.             �
- * �  ?? init(socket) es la �NICA entrada para el flujo de chat.              �
+ * ║  MODERATION.JS — COORDINADOR DELGADO — NO MODIFICAR                     ║
+ * ║  Sub-módulos (cargar en orden):                                          ║
+ * ║    1. moderation-state.js   → window._MS (estado compartido)            ║
+ * ║    2. moderation-modals.js  → window._ModModals                         ║
+ * ║    3. moderation-chat.js    → window._ModChat                           ║
+ * ║    4. moderation-socket.js  → window._ModSocket                         ║
+ * ║    5. moderation.js (este)  → window.ModerationSystem (API pública)     ║
+ * ║  ⚠️ initForRegistration() es la ÚNICA entrada para registro.             ║
+ * ║  ⚠️ init(socket) es la ÚNICA entrada para el flujo de chat.              ║
  * +---------------------------------------------------------------------------+ */
 
 const ModerationSystem = (() => {
@@ -21,7 +21,11 @@ const ModerationSystem = (() => {
     S.isApproved  = (av === 1 || av === true || av === '1') || S.currentUser?.role === 'superadmin';
 
     /* Modal de términos eliminado - solo se usa el modal estilizado de registro */
-    /* Eliminar cualquier modal de términos existente en el DOM */\n    const existingModal = document.getElementById('terms-modal-overlay');\n    if (existingModal) existingModal.remove();\n    window._ModModals._initApprovalWaitingModal();
+    /* window._ModModals._initTermsModal(); */
+    /* Eliminar cualquier modal de términos existente en el DOM */
+    const existingModal = document.getElementById('terms-modal-overlay');
+    if (existingModal) existingModal.remove();
+    window._ModModals._initApprovalWaitingModal();
     window._ModModals._initWelcomeModal();
     window._ModModals._initRejectionModal();
     window._ModModals._initNewUserAlert();

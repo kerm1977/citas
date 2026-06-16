@@ -8,37 +8,10 @@
 window._ModModals = (function () {
   const S = window._MS;
 
+  /* _initTermsModal ELIMINADO - modal de términos no estilizado */
   function _initTermsModal() {
-    if (document.getElementById('terms-modal-overlay')) return;
-    document.body.insertAdjacentHTML('beforeend', `
-      <div id="terms-modal-overlay" class="hidden">
-        <div id="terms-modal">
-          <h2>🌸 Bienvenidas a Zona Segura</h2>
-          <div id="terms-content">
-            <p class="highlight">Esta aplicación es únicamente para <strong>Mujeres</strong> sin importar su orientación Sexual.</p>
-            <p>La aplicación no guarda registros, no solicita información personal y mucho menos información financiera.</p>
-            <div class="warning">
-              <p><strong>🔍 Verificación:</strong></p>
-              <ul>
-                <li>Se solicitarán pruebas por mujeres para verificar que son mujeres.</li>
-                <li>No se permiten "micrófonos malos, cámaras malas".</li>
-                <li>Solo ingresan las autorizadas por las mujeres moderadoras.</li>
-              </ul>
-            </div>
-            <p>👨‍💻 <strong>Desarrollo:</strong> El único hombre con acceso es del grupo de desarrolladores, sin acceso a datos encriptados.</p>
-            <p>🔒 <strong>Privacidad:</strong> Información totalmente encriptada. Imágenes van de persona a persona.</p>
-            <p>⚠️ <strong>Responsabilidad:</strong> Si estás aquí lo haces por tu propia voluntad.</p>
-            <p>🛡️ <strong>Moderación:</strong> Las mujeres en el chat denuncian anomalías y material ofensivo.</p>
-            <p>💝 <strong>Donaciones:</strong> Solicitamos donaciones a partir de $2 USD o ₡1000, pero no por el momento.</p>
-          </div>
-          <div id="terms-buttons">
-            <button id="btn-reject-terms">No Acepto</button>
-            <button id="btn-accept-terms">Acepto ✓</button>
-          </div>
-        </div>
-      </div>`);
-    document.getElementById('btn-accept-terms').addEventListener('click', _acceptTerms);
-    document.getElementById('btn-reject-terms').addEventListener('click', _rejectTerms);
+    /* No hacer nada - modal eliminado */
+    return;
   }
 
   function _acceptTerms() {

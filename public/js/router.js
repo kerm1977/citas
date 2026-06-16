@@ -133,6 +133,11 @@ const Router = (() => {
    *  NO agregar div#register-modal-message en el HTML del formulario.
    *  ═════════════════════════════════════════════════════════════════════════════ */
   async function showRegisterModal() {
+    /* Guard para evitar duplicados - eliminar cualquier modal existente */
+    document.querySelectorAll('.report-overlay').forEach(el => {
+      if (el.querySelector('.register-info-text')) el.remove();
+    });
+
     try {
       const res = await fetch('/api/public/register-message');
       const data = await res.json();
