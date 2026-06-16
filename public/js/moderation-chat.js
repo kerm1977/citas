@@ -118,7 +118,11 @@ window._ModChat = (function () {
     document.getElementById('review-chat-overlay').classList.add('hidden');
     S.pendingReviewUsers.shift();
     S.activeReviewChat = null;
-    if (S.pendingReviewUsers.length > 0) window._ModModals.showNewUserAlert(S.pendingReviewUsers[0]);
+    /* Solo mostrar siguiente alerta si el superusuario está logueado */
+    const session = Auth?.loadSession?.();
+    if (session?.user?.role === 'superadmin' && S.pendingReviewUsers.length > 0) {
+      window._ModModals.showNewUserAlert(S.pendingReviewUsers[0]);
+    }
   }
 
   function _showReviewChatForUser() {
