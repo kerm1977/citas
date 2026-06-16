@@ -141,6 +141,33 @@ const Router = (() => {
     } catch (e) { el.innerHTML = ''; }
   }
 
+  async function showRegisterModal() {
+    try {
+      const res = await fetch('/api/public/register-message');
+      const data = await res.json();
+      const message = data.ok ? data.message : '';
+      const ov = document.createElement('div');
+      ov.className = 'report-overlay';
+      ov.innerHTML = `
+        <div class="report-card glass-card">
+          <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
+          <h3 class="report-title">🌸 Bienvenidas a Zona Segura</h3>
+          <div class="report-field">
+            <div class="register-info-text">${_esc(message)}</div>
+          </div>
+          <button id="accept-register" class="btn report-submit-btn">Aceptar y continuar</button>
+        </div>`;
+      document.body.appendChild(ov);
+      ov.querySelector('#accept-register').onclick = () => {
+        ov.remove();
+        go('register');
+      };
+      ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    } catch (e) {
+      go('register');
+    }
+  }
+
   function init() {
     window.onpopstate = (e) => { if (e.state?.route) go(e.state.route); };
     const session = Auth.loadSession();
@@ -149,7 +176,7 @@ const Router = (() => {
     go(route);
   }
 
-  return { go, init };
+  return { go, init, showRegisterModal };
 })();
 
 window.Router = Router;

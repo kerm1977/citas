@@ -62,7 +62,7 @@
       </div>
       <button type="submit" class="btn btn-full" id="login-btn">Ingresar</button>
     </form>
-    <p class="auth-footer">¿No tienes cuenta? <button class="link-btn" onclick="Router.go('register')">Regístrate</button></p>
+    <p class="auth-footer">¿No tienes cuenta? <button class="link-btn" onclick="Router.showRegisterModal()">Regístrate</button></p>
   </div>
 </section>
 
@@ -74,7 +74,6 @@
       ChatApp
     </div>
     <h1 class="auth-title">Crear cuenta</h1>
-    <div id="register-modal-message" class="register-modal-message"></div>
     <form id="form-register" novalidate>
       <div id="reg-avatar-zone" class="avatar-zone"></div>
       <div class="form-group">
@@ -341,7 +340,7 @@
 <script src="/js/report-modal.js?v=1"></script>
 <script src="/js/chat.js?v=5"></script>
 <script src="/js/admin.js?v=8"></script>
-<script src="/js/router.js?v=8"></script>
+<script src="/js/router.js?v=9"></script>
 <script src="/js/app.js?v=2"></script>
 <script src="/js/sw-register.js?v=2"></script>
 <script src="/js/eye-button.js?v=2"></script>
