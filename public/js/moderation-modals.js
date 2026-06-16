@@ -59,8 +59,9 @@ window._ModModals = (function () {
   }
 
   function initForRegistration() {
-    _initTermsModal();
-    showTermsModal();
+    /* Modal de términos eliminado - solo se usa el modal estilizado de registro */
+    /* _initTermsModal(); */
+    /* showTermsModal(); */
   }
 
   function _initApprovalWaitingModal() {
