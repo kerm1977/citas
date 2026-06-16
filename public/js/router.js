@@ -124,6 +124,14 @@ const Router = (() => {
 
   function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  /* ═════════════════════════════════════════════════════════════════════════════
+   *  ⚠️ BLINDADO — showRegisterModal es la ÚNICA forma de mostrar el mensaje de registro
+   *  ────────────────────────────────────────────────────────────────────────────────
+   *  El mensaje de registro SOLO debe aparecer en este modal al presionar "Regístrate".
+   *  NUNCA debe aparecer incrustado en el formulario de registro (sec-register).
+   *  NO agregar _loadRegisterMessage() en _onEnter('register').
+   *  NO agregar div#register-modal-message en el HTML del formulario.
+   *  ═════════════════════════════════════════════════════════════════════════════ */
   async function showRegisterModal() {
     try {
       const res = await fetch('/api/public/register-message');
