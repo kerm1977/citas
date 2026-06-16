@@ -1,14 +1,31 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE SOCKET — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja la conexión Socket.IO y los eventos del chat.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. Los callbacks están separados: onConnect (sin parámetros) y onOnline (con parámetros)
- *  2. NO mezclar estos callbacks o causará errores en la recepción de mensajes
- *  3. La estructura de eventos está validada y funcionando correctamente
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-SOCKET — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                   ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── connect() — NO MODIFICAR ──────────────────────────────────────────── ║
+ * ║  Crea el socket con io({ auth: { token } }) y registra TODOS los eventos. ║
+ * ║  Si se llama más de una vez, el guard _socket?.connected lo previene.     ║
+ * ║  NO agregar nuevos eventos de socket aquí — usar getSocket() en otros     ║
+ * ║  módulos para escuchar eventos adicionales de moderación.                 ║
+ * ║                                                                           ║
+ * ║  ── CALLBACKS SEPARADOS — NO MEZCLAR ──────────────────────────────────── ║
+ * ║  onConnect(cb)  → cb() sin parámetros — se llama al establecer conexión   ║
+ * ║  onOnline(cb)   → cb({ userId, online }) — usuario conecta/desconecta     ║
+ * ║  onMessage(cb)  → cb(msg) — mensaje nuevo recibido                        ║
+ * ║  onTyping(cb)   → cb(data) — indicador de escritura                       ║
+ * ║  onDelete(cb)   → cb(data) — mensaje eliminado                            ║
+ * ║  onRead(cb)     → cb(data) — mensaje leído                                ║
+ * ║  Mezclar estos callbacks rompe la recepción de mensajes (BUG CONFIRMADO). ║
+ * ║                                                                           ║
+ * ║  ── getSocket() — SOLO PARA MODERACIÓN ────────────────────────────────── ║
+ * ║  Permite a moderation.js acceder al socket para eventos de revisión.      ║
+ * ║  NO usar para emitir eventos de chat normales.                            ║
+ * ║                                                                           ║
+ * ║  ── EVENTOS REGISTRADOS — NO AGREGAR MÁS AQUÍ ─────────────────────────── ║
+ * ║  connect · chat:message · chat:typing · chat:delete · chat:read           ║
+ * ║  user:online · disconnect · connect_error                                 ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatSocket = (() => {

@@ -1,3 +1,29 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT.ROUTES — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                       ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── GET /users — NO ALTERAR LÓGICA DE ROLES ───────────────────────────── ║
+ * ║  superadmin/admin → getAllUsersIncludingHidden() (ven ocultos)             ║
+ * ║  user → getAllUsers() (filtrado por is_hidden=0, incluye is_approved)     ║
+ * ║  is_approved DEBE estar en el SELECT para que el filtro del cliente       ║
+ * ║  funcione (chat-users.js renderUserList).                                 ║
+ * ║                                                                           ║
+ * ║  ── POST /upload — NO ALTERAR TIPOS ───────────────────────────────────── ║
+ * ║  Detecta: image/* → 'image', video/* → 'video', audio/* → 'audio'.      ║
+ * ║  Límite: 50MB. Devuelve { ok, url, type }. El type es usado por el       ║
+ * ║  cliente para renderizar el media correcto en appendMessage y review chat. ║
+ * ║                                                                           ║
+ * ║  ── DELETE /message/:id — NO ALTERAR ORDEN DE PASOS ───────────────────── ║
+ * ║  1. Verificar que el emisor es el solicitante (403 si no).               ║
+ * ║  2. Eliminar archivo físico de ./data/uploads/ si existe.                ║
+ * ║  3. Eliminar registro de la BD.                                           ║
+ * ║  Cambiar el orden deja archivos huérfanos o permite eliminar ajenos.     ║
+ * ║                                                                           ║
+ * ║  ── GET /superuser-contacts — NO ELIMINAR ─────────────────────────────── ║
+ * ║  Usado por checkSuperuserContacts() en chat-ui.js para mostrar el modal   ║
+ * ║  de "Superusuario te contactó" a usuarias PENDIENTES de aprobación.       ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 const router = require('express').Router();
 const multer = require('multer');

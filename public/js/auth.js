@@ -1,4 +1,29 @@
-/* ── Authentication (login / register / recover) ─────────────── */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  AUTH.JS — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                           ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── _saveSession(data) — NO ALTERAR ───────────────────────────────────── ║
+ * ║  Guarda SIEMPRE en sessionStorage. Guarda en localStorage solo si         ║
+ * ║  data._remember === true (checkbox "recuérdame").                         ║
+ * ║  Clave fija: '_chatapp_session'. NO cambiar esta clave.                   ║
+ * ║                                                                           ║
+ * ║  ── initRegisterForm() — NO ALTERAR LLAMADA A initForRegistration ──────── ║
+ * ║  Llama ModerationSystem.initForRegistration() (NO init()).                ║
+ * ║  init() ejecutaría _checkUserStatus() y mostraría modales incorrectos.    ║
+ * ║                                                                           ║
+ * ║  ── Flujo de registro → moderación — NO ALTERAR ───────────────────────── ║
+ * ║  1. Usuario llena formulario → POST /api/auth/register                   ║
+ * ║  2. Servidor emite moderation:new_user a todos los sockets               ║
+ * ║  3. Cliente recibe { ok, token, user: { is_approved: 0 } }               ║
+ * ║  4. _saveSession() + ModerationSystem.setJustRegistered() +              ║
+ * ║     showApprovalWaiting()                                                 ║
+ * ║  NO alterar este orden de pasos.                                          ║
+ * ║                                                                           ║
+ * ║  ── initLoginForm() — NO ALTERAR ──────────────────────────────────────── ║
+ * ║  Guarda sesión y redirige a /#chat. Si is_approved=0 → moderación        ║
+ * ║  lo bloquea en chat.js onConnect. NO bloquear aquí.                      ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const Auth = (() => {

@@ -1,14 +1,26 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE MENSAJES — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja el envío y recepción de mensajes.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. Las funciones sendText y sendFile están validadas con encriptación
- *  2. La función appendMessage maneja el scroll automático y multimedia
- *  3. El menú de eliminación tipo Signal está funcionando correctamente
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-MESSAGES — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                 ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── sendText(room, receiverId, replyTo) — NO ALTERAR ────────────────── ║
+ * ║  Limpia el input ANTES de emitir. Encripta con CryptoLayer.encrypt().     ║
+ * ║  NO hacer scroll aquí — el scroll lo hace appendMessage al recibir.      ║
+ * ║                                                                           ║
+ * ║  ── sendFile(e, room, receiverId) — NO ALTERAR ─────────────────────── ║
+ * ║  Sube a /api/chat/upload, usa el type y url de la respuesta.              ║
+ * ║  NO encripta archivos (solo texto va encriptado).                         ║
+ * ║                                                                           ║
+ * ║  ── appendMessage(msg) — NO ALTERAR LÓGICA DE SCROLL ──────────────── ║
+ * ║  wasNearBottom se captura ANTES de insertar el row. Sin esto las imágenes  ║
+ * ║  quedan desfasadas (BUG CONFIRMADO). El umbral es 150px.                  ║
+ * ║  .msg-sender muestra 'Tú' para enviados, nombre real para recibidos.      ║
+ * ║                                                                           ║
+ * ║  ── MENÚ TIPO SIGNAL — NO ALTERAR ESTRUCTURA ──────────────────────── ║
+ * ║  Botón '⋮' solo en mensajes que NO son imagen (msg.type !== 'image').      ║
+ * ║  Dropdown se posiciona al LADO (right: 100%). NO cambiar a abajo.        ║
+ * ║  Imágenes abren modal con opciones de eliminar/descargar.                 ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatMessages = (() => {

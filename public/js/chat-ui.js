@@ -1,14 +1,22 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE UI — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja la interfaz de usuario del chat.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. La función openChat está validada con scroll automático
- *  2. El fallback para superusuarios está funcionando correctamente
- *  3. Los eventos onTyping, onDelete, onRead, onOnline están validados
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-UI — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                        ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── openChat(userId) — NO ALTERAR ──────────────────────────────────── ║
+ * ║  Fallback crítico: si el usuario es SUPERADMIN oculto, lo busca por API   ║
+ * ║  /api/chat/user/:id. Sin esto, abrir chat con superadmin falla.           ║
+ * ║  Hace scroll automático al final tras cargar mensajes.                    ║
+ * ║                                                                           ║
+ * ║  ── checkSuperuserContacts() — NO ALTERAR ──────────────────────────── ║
+ * ║  Se llama en cada _onConnect. Muestra modal #superuser-modal si hay        ║
+ * ║  contactos pendientes de un superadmin hacia la usuaria.                  ║
+ * ║  Solo aplica a usuarias PENDIENTES (is_approved=0). Aprobadas no ven esto. ║
+ * ║                                                                           ║
+ * ║  ── onTyping / onDelete / onRead / onOnline — NO ALTERAR ────────────── ║
+ * ║  onOnline: si el usuario NO está en la lista → Chat.loadUsers() (refresh). ║
+ * ║  Esta es la entrada para nuevos usuarios aprobados que aparecen en lista.  ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatUI = (() => {

@@ -1,4 +1,23 @@
-/* ── App Entry Point ─────────────────────────────────────────── */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  APP.JS — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                           ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── Toast — GLOBAL — NO ALTERAR ─────────────────────────────────────── ║
+ * ║  Toast.show(msg, type, duration). Types: 'info', 'error', 'success'.     ║
+ * ║  Usa #toast-container del HTML. NO crear otro sistema de notificaciones.  ║
+ * ║                                                                           ║
+ * ║  ── INTERCEPTOR GLOBAL DE FETCH — JAMÁS ELIMINAR ──────────────────────── ║
+ * ║  Reemplaza window.fetch para interceptar respuestas 401.                  ║
+ * ║  Si la respuesta es 401 → limpia sesión + redirige a /#login.             ║
+ * ║  Eliminar esto permite sesiones expiradas sin logout automático.          ║
+ * ║  NO envolver en try/catch externo que suprima errores de red.             ║
+ * ║                                                                           ║
+ * ║  ── window._session — FUENTE DE VERDAD DEL CLIENTE ────────────────────── ║
+ * ║  Se carga de sessionStorage ?? localStorage con clave '_chatapp_session'. ║
+ * ║  Contiene: { token, user: { id, name, email, role, is_approved }, ... }   ║
+ * ║  El servidor es la FUENTE DE VERDAD REAL (verifica en cada request).      ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 /* ── Toast utility (global) ─────────────────────────────────── */

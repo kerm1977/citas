@@ -1,14 +1,23 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE UTILIDADES — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo contiene funciones utilitarias para el chat.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. Las funciones de encriptación (encKey, roomKey) están validadas
- *  2. Las funciones de escape y timeAgo están funcionando correctamente
- *  3. La función updatePageTitle actualiza el título con el contador de unread
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-UTILS — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                       ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── authHeaders() — NO ALTERAR ─────────────────────────────────────── ║
+ * ║  Devuelve { Authorization: 'Bearer <token>' }. Usado en TODOS los fetch.  ║
+ * ║  Token viene de window._session.token. Sin esto, todos los fetch fallan.  ║
+ * ║                                                                           ║
+ * ║  ── encKey / roomKey — NO ALTERAR ────────────────────────────────── ║
+ * ║  Derivan la clave de encriptación desde el room ID. Cambiar la función   ║
+ * ║  hace ilegibles todos los mensajes existentes (BUG PERMANENTE).           ║
+ * ║                                                                           ║
+ * ║  ── escape(str) — SIEMPRE USAR PARA OUTPUT HTML ──────────────────── ║
+ * ║  Escapa entidades HTML para prevenir XSS. NO omitir al insertar texto     ║
+ * ║  de usuario en innerHTML.                                                 ║
+ * ║                                                                           ║
+ * ║  ── updatePageTitle(count) — NO ALTERAR ───────────────────────────── ║
+ * ║  Muestra (N) en el título de la página cuando hay mensajes no leídos.    ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatUtils = (() => {

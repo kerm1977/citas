@@ -1,14 +1,22 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE MODAL — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja el modal de imagen y el menú de eliminación tipo Signal.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. El modal de imagen está validado con z-index 99999
- *  2. El menú de eliminación tipo Signal está funcionando correctamente
- *  3. El posicionamiento del dropdown está validado (left/right)
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-MODAL — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                      ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── MODAL DE IMAGEN (#image-modal) — NO ALTERAR Z-INDEX ────────────── ║
+ * ║  z-index: 99999. Debe estar sobre TODOS los demás elementos.              ║
+ * ║  Muestra imagen full-size + botón de descarga + opción de eliminar.      ║
+ * ║                                                                           ║
+ * ║  ── MENÚ TIPO SIGNAL (toggleMessageMenu) — NO ALTERAR POSICIÓN ─────── ║
+ * ║  Dropdown se posiciona right: 100% marginRight: 8px (al LADO del botón). ║
+ * ║  Cambiarlo a abajo rompe el diseño tipo Signal (BUG CONFIRMADO).         ║
+ * ║  Se cierra al hacer clic fuera mediante listener en document.             ║
+ * ║  Parámetros: msgId, room, btn, sent, msgType, msgContent.                 ║
+ * ║                                                                           ║
+ * ║  ── deleteForAll / deleteForMe — NO ALTERAR ORDEN DE PASOS ────────── ║
+ * ║  deleteForAll: DELETE API + emit chat:delete + remove del DOM.            ║
+ * ║  deleteForMe: solo remove del DOM local (sin API call).                   ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatModal = (() => {

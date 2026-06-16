@@ -1,14 +1,25 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE USUARIOS — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja la gestión de usuarios y la lista de usuarios del chat.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. La estructura de usuarios está validada y funcionando correctamente
- *  2. La función _userItemHTML genera el HTML de los items con badges de unread
- *  3. La función updateUserItem actualiza el DOM de un usuario específico
- *  4. Solo se permiten integraciones, NO cambios a la lógica existente
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-USERS — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                    ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── renderUserList(users) — FILTRO CRÍTICO — NO ALTERAR ───────────────── ║
+ * ║  Filtra la lista según rol y estado de aprobación:                        ║
+ * ║  · Excluye al usuario actual (u.id === me)                                ║
+ * ║  · Oculta superadmins a usuarios regulares                                ║
+ * ║  · Solo muestra is_approved=1 a usuarios no-superadmin                    ║
+ * ║  Cambiar este filtro expondría usuarios pendientes o rompería la lista.   ║
+ * ║                                                                           ║
+ * ║  ── updateUserItem(userId) — NO MODIFICAR LÓGICA DE FALLBACK ─────────── ║
+ * ║  Si el item está en DOM → actualiza solo ese elemento.                   ║
+ * ║  Si NO está en DOM (usuario nuevo o recién aprobado) → renderUserList().  ║
+ * ║  Este fallback es el que hace que nuevos usuarios aprobados aparezcan.    ║
+ * ║                                                                           ║
+ * ║  ── _userItemHTML(u) — NO CAMBIAR ESTRUCTURA HTML ──────────────────── ║
+ * ║  data-uid="{u.id}" es usado por Chat.openChat() y por updateUserItem().   ║
+ * ║  onclick="Chat.openChat('{u.id}')" es el único punto de entrada.          ║
+ * ║  NO cambiar el atributo data-uid ni la llamada onclick.                   ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatUsers = (() => {

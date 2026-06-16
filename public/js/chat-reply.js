@@ -1,14 +1,19 @@
-/* ═════════════════════════════════════════════════════════════════════════════
- *  ⚠️⚠️⚠️ MÓDULO DE RESPUESTA — CÓDIGO VALIDADO Y FUNCIONANDO — NO MODIFICAR ⚠️⚠️⚠️
- * ─────────────────────────────────────────────────────────────────────────────────
- *  Este módulo maneja la funcionalidad de responder mensajes.
- *
- *  REGLAS DE PRESERVACIÓN:
- *  1. Las funciones setReplyTo, clearReplyTo, getReplyTo están validadas
- *  2. El indicador visual de respuesta funciona correctamente
- *  3. Solo se permiten integraciones, NO cambios a la lógica existente
- *  4. Los logs de depuración pueden eliminarse en producción
- * ═════════════════════════════════════════════════════════════════════════════ */
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  CHAT-REPLY — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                      ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── setReplyTo(msg) — NO ALTERAR ───────────────────────────────────── ║
+ * ║  Guarda el mensaje a responder en _replyTo.                               ║
+ * ║  Muestra #reply-preview con nombre del remitente y preview del contenido. ║
+ * ║  clearReplyTo() limpia _replyTo y oculta #reply-preview.                 ║
+ * ║                                                                           ║
+ * ║  ── IDs HTML FIJOS — JAMÁS RENOMBRAR ───────────────────────────────── ║
+ * ║  #reply-preview → contenedor visible del indicador de respuesta           ║
+ * ║  #reply-sender  → nombre del remitente del mensaje original              ║
+ * ║  #reply-content → preview del contenido del mensaje original             ║
+ * ║  #btn-cancel-reply → botón para cancelar la respuesta                    ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatReply = (() => {

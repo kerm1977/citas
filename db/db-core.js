@@ -1,3 +1,25 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  DB-CORE — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                          ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  Motor: sql.js (SQLite en WebAssembly). Sin dependencias nativas.         ║
+ * ║                                                                           ║
+ * ║  ── persist() — CRÍTICO — NO ELIMINAR NI HACER ASÍNCRONO ─────────────── ║
+ * ║  Escribe la BD en disco de forma SÍNCRONA (fs.writeFileSync).             ║
+ * ║  Se llama explícitamente en approveUser() y rejectUser() para garantizar  ║
+ * ║  que los cambios críticos de moderación no se pierdan si el servidor      ║
+ * ║  se reinicia entre el dbRun y el setImmediate(persist) normal.            ║
+ * ║  NO convertir a asíncrono ni eliminar estas llamadas explícitas.          ║
+ * ║                                                                           ║
+ * ║  ── dbRun(sql, params) — NO ALTERAR ───────────────────────────────────── ║
+ * ║  Ejecuta sentencias INSERT/UPDATE/DELETE. Llama setImmediate(persist)     ║
+ * ║  para persistir eventualmente. Para operaciones críticas (approve/reject) ║
+ * ║  se llama persist() explícitamente después.                               ║
+ * ║                                                                           ║
+ * ║  ── DB_PATH — NO CAMBIAR SIN ACTUALIZAR .env ──────────────────────────── ║
+ * ║  Por defecto: './data/chat.db'. Configurable via DB_PATH en .env.         ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 /* Pure-JS SQLite via sql.js (WebAssembly) — no native build tools needed */
 const fs   = require('fs');

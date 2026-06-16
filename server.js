@@ -1,3 +1,25 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  SERVER.JS — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                         ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── express.static — NO CAMBIAR OPCIONES ──────────────────────────────── ║
+ * ║  maxAge: 0, etag: false → sin caché en el browser durante desarrollo.     ║
+ * ║  Cambiar esto hace que los cambios en JS/CSS no se reflejen sin hard      ║
+ * ║  refresh, causando confusión durante el desarrollo.                       ║
+ * ║                                                                           ║
+ * ║  ── ORDEN DE MONTAJE DE RUTAS — NO ALTERAR ────────────────────────────── ║
+ * ║  /api/auth  → authRoutes(io)  — recibe io para emitir moderation:new_user ║
+ * ║  /api/chat  → chatRoutes(io)  — recibe io para mensajes en tiempo real    ║
+ * ║  /api/admin → adminRoutes     — sin io (solo consultas DB)                ║
+ * ║  /* → index.html              — SPA fallback (routing en cliente)         ║
+ * ║                                                                           ║
+ * ║  ── maxHttpBufferSize: 50MB — NO REDUCIR ──────────────────────────────── ║
+ * ║  Necesario para el envío de archivos grandes (video/audio) por socket.    ║
+ * ║                                                                           ║
+ * ║  ── module.exports = { app, io } — NO ELIMINAR ────────────────────────── ║
+ * ║  Permite que otros módulos accedan a io sin importar socket.handler.js.   ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 require('dotenv').config();
 const express    = require('express');
