@@ -1,3 +1,29 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║  ⚠️⚠️⚠️  DB/QUERIES — BLINDADO — NO MODIFICAR  ⚠️⚠️⚠️                       ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                           ║
+ * ║  ── getAllUsers() — NO QUITAR is_approved DEL SELECT ──────────────────── ║
+ * ║  El campo is_approved es requerido por chat-users.js renderUserList()     ║
+ * ║  para filtrar usuarios no aprobados de la lista del cliente.              ║
+ * ║  Quitarlo hace que NINGÚN usuario aparezca en la lista (BUG CONFIRMADO). ║
+ * ║                                                                           ║
+ * ║  ── getAllUsersIncludingHidden() — NO ALTERAR ──────────────────────────── ║
+ * ║  Usada por superadmin/admin en /api/chat/users. Incluye usuarios ocultos  ║
+ * ║  (superadmins con is_hidden=1). NO cambiar el SELECT.                    ║
+ * ║                                                                           ║
+ * ║  ── getUserByEmail vs getUserByEmailAny ───────────────────────────────── ║
+ * ║  getUserByEmail: solo usuarios visibles (is_hidden=0) → login normal.    ║
+ * ║  getUserByEmailAny: TODOS → recuperación de contraseña de superadmins.   ║
+ * ║  NO unificar en una sola función.                                         ║
+ * ║                                                                           ║
+ * ║  ── approveUser / rejectUser — BLINDADOS — VER SECCIÓN INTERNA ─────────  ║
+ * ║  Llaman persist() síncronamente. NO eliminar esas llamadas.               ║
+ * ║                                                                           ║
+ * ║  ── clearSuperuserContactsForUser(userId) — NO ELIMINAR ───────────────── ║
+ * ║  Se llama al aprobar usuaria. Limpia notificaciones para que la usuaria   ║
+ * ║  aprobada no vea "Superusuario te contactó" en bucle.                    ║
+ * ║                                                                           ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 const { randomUUID } = require('crypto');
 const { dbGet, dbAll, dbRun, persist } = require('./db-core');
