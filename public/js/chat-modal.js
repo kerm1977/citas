@@ -102,28 +102,8 @@ const ChatModal = (() => {
   }
 
   function toggleMessageMenu(msgId, room, btn, sent, msgType, msgContent) {
-    /* ═════════════════════════════════════════════════════════════════════════════
-     *  ⚠️  CRÍTICO — DISEÑO DEL MENÚ DE ELIMINACIÓN — NO MODIFICAR  ⚠️
-     * ─────────────────────────────────────────────────────────────────────────────────
-     *  Función que crea y posiciona el dropdown de opciones de eliminación.
-     *
-     *  DISEÑO DE LAS OPCIONES (NO ALTERAR):
-     *  - Para el EMISOR del mensaje (sent=true): muestra "Eliminar para mí" y "Eliminar para todos"
-     *  - Para el RECEPTOR del mensaje (sent=false): muestra solo "Eliminar"
-     *  - Si el mensaje es una imagen (msgType === 'image'), también muestra "Descargar imagen"
-     *  Este diseño es INTENCIONAL y no debe cambiarse.
-     *
-     *  ⚠️⚠️⚠️ POSICIONAMIENTO DEL DROPDOWN — JAMÁS MODIFICAR ⚠️⚠️⚠️
-     *  ESTA LÓGICA DE POSICIONAMIENTO ES CRÍTICA Y DEBE MANTENERSE ETERNAMENTE:
-     *  1. Cerrar cualquier dropdown existente antes de abrir uno nuevo (evita múltiples).
-     *  2. POSICIONAMIENTO INTELIGENTE (NO ALTERAR NUNCA):
-     *     - Mensajes RECIBIDOS (sent=false, izquierda): dropdown hacia la DERECHA (clase dropdown-right)
-     *     - Mensajes ENVIADOS (sent=true, derecha): dropdown hacia la IZQUIERDA (clase dropdown-left)
-     *     Esto hace que el dropdown SIEMPRE se despliegue hacia ADENTRO del chat, nunca hacia afuera.
-     *  3. NO cambiar a bottom o se rompe el estilo Signal.
-     *  4. Agregar listener para cerrar al click fuera del dropdown.
-     *  5. Solo se permite agregar nuevas funciones/opciones, JAMÁS cambiar la posición.
-     * ═════════════════════════════════════════════════════════════════════════════ */
+    /* ⚠️ CRÍTICO — NO MODIFICAR posicionamiento: sent→dropdown-left, received→dropdown-right.
+     * Cerrar dropdown existente antes de abrir (evita duplicados). NO cambiar a bottom. */
     const existing = document.querySelector('.msg-dropdown.active');
     if (existing) existing.remove();
 

@@ -12,16 +12,21 @@
  * ║  contactos pendientes de un superadmin hacia la usuaria.                  ║
  * ║  Solo aplica a usuarias PENDIENTES (is_approved=0). Aprobadas no ven esto. ║
  * ║                                                                           ║
- * ║  ── onTyping / onDelete / onRead / onOnline — NO ALTERAR ────────────── ║
- * ║  onOnline: si el usuario NO está en la lista → Chat.loadUsers() (refresh). ║
- * ║  Esta es la entrada para nuevos usuarios aprobados que aparecen en lista.  ║
+ * ║  ── onOnline(data) — BLINDADO — JAMÁS MODIFICAR ──────────────────────── ║
+ * ║  ⚠️⚠️⚠️ LÓGICA CRÍTICA VALIDADA — BUG CONFIRMADO Y CORREGIDO ⚠️⚠️⚠️       ║
+ * ║  Si el userId NO está en _users y viene online → Chat.loadUsers().       ║
+ * ║  SIN esto: usuarios que se conectan DESPUÉS del loadUsers inicial         ║
+ * ║  NUNCA aparecen en la lista de los usuarios ya conectados.               ║
+ * ║  Escenario roto sin esta lógica:                                          ║
+ * ║    · Carmelo conecta → loadUsers → ve solo a Jen                         ║
+ * ║    · Maureen conecta → emite user:online → Carmelo recibe, getUserById    ║
+ * ║      devuelve null → SIN loadUsers() → Carmelo nunca ve a Maureen        ║
+ * ║  NO eliminar el else-if. NO quitar el return. NO mover el loadUsers().   ║
  * ║                                                                           ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝ */
 'use strict';
 
 const ChatUI = (() => {
-  let _pendingSuperuser = null;
-
   async function openChat(userId) {
     let u = ChatUsers.getUserById(userId);
 
@@ -85,19 +90,8 @@ const ChatUI = (() => {
     const container = document.getElementById('chat-messages');
     container.innerHTML = '';
     if (data.ok) {
-      /* ══════════════════════════════════════════════════════════════════
-       *  ⚠️  LÓGICA CRÍTICA DE SCROLL AL ABRIR EL CHAT — NO MODIFICAR  ⚠️
-       * ────────────────────────────────────────────────────────────────────
-       *  Asegura que SIEMPRE se enfoque el ÚLTIMO mensaje (estilo WhatsApp).
-       *  Costó varias iteraciones afinar este comportamiento. Mantener:
-       *  1. openChat carga el historial COMPLETO (NO volver a hacer append
-       *     manual del mensaje en _onMessage, o se DUPLICA).
-       *  2. Se usan múltiples intentos de scroll (inmediato + setTimeout +
-       *     chequeo periódico) porque el layout/imágenes terminan de
-       *     renderizar de forma asíncrona.
-       *  3. NO reactivar 'scroll-behavior: smooth' global: rompe el scroll
-       *     programático (queda a medio camino).
-       * ══════════════════════════════════════════════════════════════════ */
+      /* ⚠️ SCROLL CRÍTICO — NO MODIFICAR: múltiples intentos porque imágenes cargan async.
+       * NO quitar setTimeout ni setInterval. NO activar scroll-behavior:smooth. */
       data.messages.forEach(m => ChatMessages.appendMessage(m));
       container.scrollTop = container.scrollHeight;
       container.scrollTo({ top: container.scrollHeight, behavior: 'instant' });
@@ -170,8 +164,7 @@ const ChatUI = (() => {
     if (row) row.remove();
   }
 
-  function onRead({ userId }) {
-  }
+  function onRead({ userId }) {}
 
   function onOnline(data) {
     if (!data) return;
@@ -179,6 +172,20 @@ const ChatUI = (() => {
     const u = ChatUsers.getUserById(userId);
     if (u) {
       ChatUsers.updateUser(userId, { online, last_seen });
+    } else if (online) {
+      /* ═══════════════════════════════════════════════════════════════════════
+       * ⚠️⚠️⚠️  BLINDADO — JAMÁS ELIMINAR ESTE BLOQUE  ⚠️⚠️⚠️
+       * ───────────────────────────────────────────────────────────────────────
+       * BUG CONFIRMADO (Jun 2026): sin este else-if, los usuarios que se
+       * conectan DESPUÉS del loadUsers() inicial son INVISIBLES para los
+       * clientes ya conectados. Cada cliente solo ve a quien estaba en la BD
+       * en el momento exacto en que él mismo cargó la lista.
+       *
+       * REGLA: si llega user:online de alguien NO en _users → loadUsers().
+       * NO cambiar. NO eliminar. NO mover. Blindaje permanente.
+       * ═══════════════════════════════════════════════════════════════════════ */
+      if (typeof Chat !== 'undefined') Chat.loadUsers();
+      return;
     }
     const item = document.querySelector(`[data-uid="${userId}"]`);
     if (item && u) {
@@ -192,49 +199,8 @@ const ChatUI = (() => {
         st.className = 'ch-status ' + (online ? 'online' : 'offline');
       }
     }
-    if (online) {
-      SoundEffects?.playConnect();
-    } else {
-      SoundEffects?.playDisconnect();
-    }
-  }
-
-  async function checkSuperuserContacts() {
-    try {
-      const res = await fetch('/api/chat/superuser-contacts', { headers: ChatUtils.authHeaders() });
-      const data = await res.json();
-      if (!data.ok || !data.contacts || data.contacts.length === 0) return;
-
-      const contact = data.contacts[0];
-      console.log('[Chat] Pending superuser contact:', contact);
-      _pendingSuperuser = {
-        id: contact.superuser_id,
-        name: contact.superuser_name,
-        avatar: contact.superuser_avatar,
-        contactId: contact.id
-      };
-      document.getElementById('superuser-name').textContent = contact.superuser_name || 'Superusuario';
-      document.getElementById('superuser-modal').classList.remove('hidden');
-    } catch (e) {
-      console.error('[Chat] Error checking superuser contacts:', e);
-    }
-  }
-
-  function closeSuperuserModal() {
-    document.getElementById('superuser-modal').classList.add('hidden');
-    if (_pendingSuperuser?.contactId) {
-      fetch(`/api/chat/superuser-contacts/${_pendingSuperuser.contactId}/acknowledge`, {
-        method: 'POST',
-        headers: ChatUtils.authHeaders()
-      }).catch(e => console.error('[Chat] Error acknowledging contact:', e));
-    }
-    _pendingSuperuser = null;
-  }
-
-  function openSuperuserChat() {
-    if (!_pendingSuperuser) return;
-    openChat(_pendingSuperuser.id);
-    closeSuperuserModal();
+    if (online) SoundEffects?.playConnect();
+    else SoundEffects?.playDisconnect();
   }
 
   function updateCurrentUserName() {
@@ -245,15 +211,6 @@ const ChatUI = (() => {
     }
   }
 
-  return {
-    openChat,
-    onTyping,
-    onDelete,
-    onRead,
-    onOnline,
-    checkSuperuserContacts,
-    closeSuperuserModal,
-    openSuperuserChat,
-    updateCurrentUserName
-  };
+  return { openChat, onTyping, onDelete, onRead, onOnline, updateCurrentUserName };
 })();
+window.ChatUI = ChatUI;
