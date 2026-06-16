@@ -36,6 +36,9 @@ window.ReportModal = (() => {
     btn.textContent = 'Enviando…';
     try {
       const res  = await fetch('/api/reports', { method: 'POST', headers: _authHeaders(), body: fd });
+      if (!res.ok && res.headers.get('content-type')?.includes('text/html')) {
+        throw new Error(`HTTP ${res.status} — reinicia el servidor`);
+      }
       const data = await res.json();
       if (data.ok) {
         close();
