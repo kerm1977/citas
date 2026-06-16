@@ -21,7 +21,7 @@ const ModerationSystem = (() => {
     S.isApproved  = (av === 1 || av === true || av === '1') || S.currentUser?.role === 'superadmin';
 
     /* Modal de términos eliminado - solo se usa el modal estilizado de registro */
-    window._ModModals._initApprovalWaitingModal();
+    /* Eliminar cualquier modal de términos existente en el DOM */\n    const existingModal = document.getElementById('terms-modal-overlay');\n    if (existingModal) existingModal.remove();\n    window._ModModals._initApprovalWaitingModal();
     window._ModModals._initWelcomeModal();
     window._ModModals._initRejectionModal();
     window._ModModals._initNewUserAlert();

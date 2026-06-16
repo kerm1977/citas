@@ -1,5 +1,5 @@
 'use strict';
-const CACHE   = 'chatapp-v4';
+const CACHE   = 'chatapp-v5';
 const OFFLINE = '/offline.html';
 const STATIC  = [
   '/', '/index.html',

@@ -62,6 +62,9 @@ window._ModModals = (function () {
     /* Modal de términos eliminado - solo se usa el modal estilizado de registro */
     /* _initTermsModal(); */
     /* showTermsModal(); */
+    /* Eliminar cualquier modal de términos existente en el DOM */
+    const existingModal = document.getElementById('terms-modal-overlay');
+    if (existingModal) existingModal.remove();
   }
 
   function _initApprovalWaitingModal() {
