@@ -45,7 +45,10 @@ const Router = (() => {
 
   function _onEnter(route) {
     if (route === 'login')    Auth.initLoginForm();
-    if (route === 'register') Auth.initRegisterForm();
+    if (route === 'register') {
+      Auth.initRegisterForm();
+      _loadRegisterMessage();
+    }
     if (route === 'recover')  Auth.initRecoverForm();
     if (route === 'chat') {
       /* Reset mobile sidebar state when entering chat */
@@ -123,6 +126,20 @@ const Router = (() => {
   }
 
   function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function _loadRegisterMessage() {
+    const el = document.getElementById('register-modal-message');
+    if (!el) return;
+    try {
+      const res = await fetch('/api/admin/settings');
+      const data = await res.json();
+      if (data.ok && data.settings.register_message) {
+        el.innerHTML = `<div class="register-info-text">${_esc(data.settings.register_message)}</div>`;
+      } else {
+        el.innerHTML = '';
+      }
+    } catch (e) { el.innerHTML = ''; }
+  }
 
   function init() {
     window.onpopstate = (e) => { if (e.state?.route) go(e.state.route); };

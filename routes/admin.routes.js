@@ -87,14 +87,17 @@ router.patch('/users/:id/warning', (req, res) => {
 /* GET /api/admin/settings — obtener configuración de admin */
 router.get('/settings', (_req, res) => {
   const warningMessage = q.getSetting('warning_message') || '';
-  res.json({ ok: true, settings: { warning_message: warningMessage } });
+  const registerMessage = q.getSetting('register_message') || '';
+  res.json({ ok: true, settings: { warning_message: warningMessage, register_message: registerMessage } });
 });
 
 /* POST /api/admin/settings — guardar configuración de admin */
 router.post('/settings', (req, res) => {
-  const { warning_message } = req.body;
-  if (typeof warning_message !== 'string') return res.json({ ok: false, msg: 'warning_message debe ser texto' });
-  q.setSetting('warning_message', warning_message);
+  const { warning_message, register_message } = req.body;
+  if (warning_message !== undefined && typeof warning_message !== 'string') return res.json({ ok: false, msg: 'warning_message debe ser texto' });
+  if (register_message !== undefined && typeof register_message !== 'string') return res.json({ ok: false, msg: 'register_message debe ser texto' });
+  if (warning_message !== undefined) q.setSetting('warning_message', warning_message);
+  if (register_message !== undefined) q.setSetting('register_message', register_message);
   res.json({ ok: true });
 });
 

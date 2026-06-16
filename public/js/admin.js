@@ -242,9 +242,40 @@ const Admin = (() => {
               <button class="btn btn-sm" onclick="Admin.openMsgModal('${emitterId}', '${_esc(emitterName || '')}')">Al denunciado</button>
             </div>
           </div>
+          <div class="report-detail-section">
+            <h4 class="report-detail-subtitle">⚠️ Mensaje de advertencia</h4>
+            <textarea id="report-warning-message" class="admin-settings-textarea" rows="3" placeholder="Mensaje de advertencia para el perfil del usuario..."></textarea>
+            <button id="report-activate-warning" class="btn btn-sm" style="margin-top:.5rem">Activar advertencia</button>
+          </div>
         </div>
       </div>`;
     document.body.appendChild(ov);
+    /* Cargar warning_message actual */
+    fetch('/api/admin/settings').then(r => r.json()).then(data => {
+      if (data.ok && data.settings.warning_message) {
+        ov.querySelector('#report-warning-message').value = data.settings.warning_message;
+      }
+    }).catch(() => {});
+    ov.querySelector('#report-activate-warning').onclick = async () => {
+      const msg = ov.querySelector('#report-warning-message').value.trim();
+      if (!msg) { alert('Escribe un mensaje de advertencia'); return; }
+      const btn = ov.querySelector('#report-activate-warning');
+      btn.disabled = true; btn.textContent = 'Guardando…';
+      try {
+        await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: _h(),
+          body: JSON.stringify({ warning_message: msg })
+        });
+        await fetch(`/api/admin/users/${emitterId}/warning`, {
+          method: 'PATCH',
+          headers: _h(),
+          body: JSON.stringify({ active: true })
+        });
+        btn.disabled = false; btn.textContent = 'Activar advertencia';
+        alert('Advertencia activada');
+      } catch (e) { btn.disabled = false; btn.textContent = 'Activar advertencia'; alert('Error de red'); }
+    };
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
@@ -338,34 +369,48 @@ const Admin = (() => {
   async function loadInterfaceSettings() {
     const el = document.getElementById('admin-interface-settings');
     if (!el) return;
-    try {
-      const res  = await fetch('/api/admin/settings', { headers: _h() });
-      const data = await res.json();
-      if (!data.ok) { el.innerHTML = '<p class="admin-empty">Error al cargar configuración.</p>'; return; }
-      const msg = data.settings.warning_message || '';
-      el.innerHTML = `
-        <div class="admin-settings-field">
-          <label class="admin-settings-label">Mensaje de advertencia para usuarios denunciados:</label>
-          <textarea id="admin-warning-message" class="admin-settings-textarea" rows="4">${_esc(msg)}</textarea>
-          <button id="admin-save-warning" class="btn btn-sm" style="margin-top:.5rem">Guardar</button>
-        </div>`;
-      el.querySelector('#admin-save-warning').onclick = async () => {
-        const newMsg = el.querySelector('#admin-warning-message').value;
-        const btn = el.querySelector('#admin-save-warning');
-        btn.disabled = true; btn.textContent = 'Guardando…';
-        try {
-          const r = await fetch('/api/admin/settings', {
-            method: 'POST',
-            headers: _h(),
-            body: JSON.stringify({ warning_message: newMsg })
-          });
-          const d = await r.json();
-          btn.disabled = false; btn.textContent = 'Guardar';
-          if (d.ok) alert('Configuración guardada');
-          else alert('Error: ' + (d.msg || 'No se pudo guardar'));
-        } catch (e) { btn.disabled = false; btn.textContent = 'Guardar'; alert('Error de red'); }
-      };
-    } catch (e) { el.innerHTML = '<p class="admin-empty">Error de red.</p>'; }
+    el.innerHTML = `
+      <button class="btn btn-sm" onclick="Admin.openRegisterModalEdit()">✏️ Editar modal de registro</button>
+    `;
+  }
+
+  function openRegisterModalEdit() {
+    const ov = document.createElement('div');
+    ov.className = 'report-overlay';
+    ov.innerHTML = `
+      <div class="report-card glass-card">
+        <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
+        <h3 class="report-title">✏️ Editar modal de registro</h3>
+        <div class="report-field">
+          <label class="admin-settings-label">Texto/instrucciones del modal de registro:</label>
+          <textarea id="register-modal-text" class="admin-settings-textarea" rows="6" placeholder="Escribe las instrucciones que aparecerán en el modal de registro..."></textarea>
+        </div>
+        <button id="save-register-modal" class="btn report-submit-btn">Guardar</button>
+      </div>`;
+    document.body.appendChild(ov);
+    /* Cargar register_message actual */
+    fetch('/api/admin/settings').then(r => r.json()).then(data => {
+      if (data.ok && data.settings.register_message) {
+        ov.querySelector('#register-modal-text').value = data.settings.register_message;
+      }
+    }).catch(() => {});
+    ov.querySelector('#save-register-modal').onclick = async () => {
+      const msg = ov.querySelector('#register-modal-text').value.trim();
+      const btn = ov.querySelector('#save-register-modal');
+      btn.disabled = true; btn.textContent = 'Guardando…';
+      try {
+        const r = await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: _h(),
+          body: JSON.stringify({ register_message: msg })
+        });
+        const d = await r.json();
+        ov.remove();
+        if (d.ok) alert('Modal de registro actualizado');
+        else alert('Error: ' + (d.msg || 'No se pudo guardar'));
+      } catch (e) { ov.remove(); alert('Error de red'); }
+    };
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
   return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings };
