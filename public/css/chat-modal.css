@@ -14,6 +14,11 @@
   z-index: 99999;
   display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.85);
+  animation: fadeIn .3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 #image-modal .modal-overlay {
   display: none;
@@ -21,14 +26,52 @@
 .image-modal-content {
   max-width: 90vw; max-height: 90vh;
   display: flex; flex-direction: column; align-items: center;
-  padding: 1rem; gap: 1rem;
+  padding: 2rem 2.5rem; gap: 1rem;
   position: relative;
   z-index: 2;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+  border: 2px solid rgba(236, 72, 153, 0.3);
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(236, 72, 153, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  animation: slideUp .4s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 .image-modal-content img {
   max-width: 100%; max-height: 70vh;
-  object-fit: contain; border-radius: 12px;
+  object-fit: contain; border-radius: 1rem;
 }
 .modal-actions {
   display: flex; gap: .75rem; width: 100%; justify-content: center;
+  flex-wrap: wrap;
+}
+.modal-actions .btn {
+  background: linear-gradient(135deg, #ec4899, #f472b6);
+  border-radius: .9rem;
+  font-weight: 700;
+  box-shadow: 0 6px 25px rgba(236, 72, 153, 0.5);
+  transition: all .3s;
+  border: none;
+}
+.modal-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(236, 72, 153, 0.6);
+}
+.modal-actions .btn:active { transform: translateY(-1px); }
+
+/* Responsive para modal de imagen */
+@media (max-width: 768px) {
+  .image-modal-content { padding: 1.8rem 2rem; }
+}
+@media (max-width: 640px) {
+  .image-modal-content { padding: 1.5rem 1.8rem; border-radius: 1.2rem; }
+}
+@media (max-width: 480px) {
+  .image-modal-content { padding: 1.3rem 1.5rem; }
+}
+@media (max-width: 360px) {
+  .image-modal-content { padding: 1.2rem 1.3rem; }
 }
