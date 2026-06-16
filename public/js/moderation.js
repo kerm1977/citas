@@ -1,15 +1,15 @@
-console.log('[ModerationSystem] File loading started...');
+Ôªøconsole.log('[ModerationSystem] File loading started...');
 
 /* +---------------------------------------------------------------------------+
- * ¶  MODERATION.JS ó COORDINADOR DELGADO ó NO MODIFICAR                     ¶
- * ¶  Sub-mÛdulos (cargar en orden):                                          ¶
- * ¶    1. moderation-state.js   ? window._MS (estado compartido)            ¶
- * ¶    2. moderation-modals.js  ? window._ModModals                         ¶
- * ¶    3. moderation-chat.js    ? window._ModChat                           ¶
- * ¶    4. moderation-socket.js  ? window._ModSocket                         ¶
- * ¶    5. moderation.js (este)  ? window.ModerationSystem (API p˙blica)     ¶
- * ¶  ?? initForRegistration() es la ⁄NICA entrada para registro.             ¶
- * ¶  ?? init(socket) es la ⁄NICA entrada para el flujo de chat.              ¶
+ * ÔøΩ  MODERATION.JS ÔøΩ COORDINADOR DELGADO ÔøΩ NO MODIFICAR                     ÔøΩ
+ * ÔøΩ  Sub-mÔøΩdulos (cargar en orden):                                          ÔøΩ
+ * ÔøΩ    1. moderation-state.js   ? window._MS (estado compartido)            ÔøΩ
+ * ÔøΩ    2. moderation-modals.js  ? window._ModModals                         ÔøΩ
+ * ÔøΩ    3. moderation-chat.js    ? window._ModChat                           ÔøΩ
+ * ÔøΩ    4. moderation-socket.js  ? window._ModSocket                         ÔøΩ
+ * ÔøΩ    5. moderation.js (este)  ? window.ModerationSystem (API pÔøΩblica)     ÔøΩ
+ * ÔøΩ  ?? initForRegistration() es la ÔøΩNICA entrada para registro.             ÔøΩ
+ * ÔøΩ  ?? init(socket) es la ÔøΩNICA entrada para el flujo de chat.              ÔøΩ
  * +---------------------------------------------------------------------------+ */
 
 const ModerationSystem = (() => {
@@ -20,7 +20,7 @@ const ModerationSystem = (() => {
     const av      = S.currentUser?.is_approved;
     S.isApproved  = (av === 1 || av === true || av === '1') || S.currentUser?.role === 'superadmin';
 
-    window._ModModals._initTermsModal();
+    /* Modal de t√©rminos eliminado - solo se usa el modal estilizado de registro */
     window._ModModals._initApprovalWaitingModal();
     window._ModModals._initWelcomeModal();
     window._ModModals._initRejectionModal();
