@@ -99,6 +99,12 @@ window._ModSocket = (function () {
       window._ModModals._updateUsersListVisibility();
     });
 
+    /* Eliminar usuario rechazado de la lista de pendientes */
+    S.socket.on('moderation:user_rejected', (data) => {
+      S.pendingReviewUsers = S.pendingReviewUsers.filter(u => u.id !== data.userId);
+      window._ModModals._dismissNewUserAlert();
+    });
+
     S.socket.on('moderation:system_message', (data) => {
       if (S.activeReviewChat) window._ModChat._appendSystemMessage(data.message);
       if (data.message?.includes('moderadora') && !S.isApproved && !S.activeReviewChat) {

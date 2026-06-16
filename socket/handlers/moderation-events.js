@@ -75,6 +75,15 @@ function registerModerationEvents(socket, io, userId, onlineUsers, q) {
       onlineUsers.delete(parseInt(targetUserId));
       onlineUsers.delete(String(targetUserId));
       onlineUsers.delete(targetUserId);
+      /* Notificar a superusuarios que el usuario fue rechazado */
+      for (const [adminId, adminSocketId] of onlineUsers) {
+        const admin = q.getUserById(adminId);
+        if (admin?.role === 'superadmin' && adminId !== moderatorId) {
+          io.to(adminSocketId).emit('moderation:user_rejected', {
+            userId: targetUserId, moderatorId, moderatorName: moderator.name
+          });
+        }
+      }
     }
   });
 
