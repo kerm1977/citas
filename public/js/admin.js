@@ -389,11 +389,14 @@ const Admin = (() => {
       </div>`;
     document.body.appendChild(ov);
     /* Cargar register_message actual */
-    fetch('/api/admin/settings').then(r => r.json()).then(data => {
+    fetch('/api/admin/settings', { headers: _h() }).then(r => r.json()).then(data => {
+      console.log('[Admin] Settings response:', data);
       if (data.ok && data.settings.register_message) {
         ov.querySelector('#register-modal-text').value = data.settings.register_message;
+      } else {
+        console.log('[Admin] No register_message found in response');
       }
-    }).catch(() => {});
+    }).catch(e => console.error('[Admin] Error loading settings:', e));
     ov.querySelector('#save-register-modal').onclick = async () => {
       const msg = ov.querySelector('#register-modal-text').value.trim();
       const btn = ov.querySelector('#save-register-modal');
