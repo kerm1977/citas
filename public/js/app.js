@@ -45,6 +45,7 @@ window.Toast = Toast;
 function _wireNav() {
   const btnLogout  = document.getElementById('btn-logout');
   const btnAccount = document.getElementById('btn-account');
+  const btnGroups  = document.getElementById('btn-groups');
   const btnAdmin   = document.getElementById('btn-admin-panel');
 
   if (btnLogout) btnLogout.onclick = () => {
@@ -55,6 +56,7 @@ function _wireNav() {
   };
 
   if (btnAccount) btnAccount.onclick = () => Router.go('account');
+  if (btnGroups)  btnGroups.onclick  = () => Router.go('groups');
   if (btnAdmin)   btnAdmin.onclick   = () => Router.go('admin');
 }
 

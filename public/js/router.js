@@ -9,10 +9,11 @@ const Router = (() => {
     chat:         'sec-chat',
     account:      'sec-account',
     'edit-profile': 'sec-edit-profile',
+    groups:       'sec-groups',
     admin:        'sec-admin',
     media:        'sec-media'
   };
-  const AUTH_ROUTES    = ['chat', 'account', 'edit-profile', 'admin', 'media'];
+  const AUTH_ROUTES    = ['chat', 'account', 'edit-profile', 'groups', 'admin', 'media'];
   const NO_AUTH_ROUTES = ['login', 'register', 'recover'];
   let _current = null;
 

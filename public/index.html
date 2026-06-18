@@ -159,6 +159,9 @@
           <button class="icon-btn" id="btn-account" title="Mi perfil">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </button>
+          <button class="icon-btn" id="btn-groups" title="Grupos">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </button>
           <button class="icon-btn" id="btn-admin-panel" title="Admin" style="display:none">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           </button>
@@ -227,6 +230,18 @@
     <div id="acct-info"></div>
     <div id="blocked-users-section"></div>
     <button class="btn btn-full" style="margin-top: 1rem;" onclick="Router.showEditProfile()">Editar perfil</button>
+  </div>
+</section>
+
+<!-- ── SECTION: GROUPS ───────────────────────────── -->
+<section id="sec-groups" class="auth-section hidden">
+  <div class="auth-card glass-card">
+    <button class="back-btn" onclick="Router.go('chat')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Volver
+    </button>
+    <h2 class="auth-title">Grupos</h2>
+    <p style="color:var(--text-muted);text-align:center;margin:1rem 0;">Funcionalidad de grupos próximamente</p>
   </div>
 </section>
 
@@ -471,8 +486,8 @@
 <script src="/js/admin.js?v=19"></script>
 <script src="/js/media-gallery.js?v=2"></script>
 <script src="/js/notifications.js?v=1"></script>
-<script src="/js/router.js?v=24"></script>
-<script src="/js/app.js?v=2"></script>
+<script src="/js/router.js?v=25"></script>
+<script src="/js/app.js?v=3"></script>
 <script src="/js/sw-register.js?v=2"></script>
 <script src="/js/eye-button.js?v=2"></script>
 <script src="/js/sounds.js?v=2"></script>
