@@ -141,10 +141,20 @@ window._ModModals = (function () {
       console.log('[ModModals] Blocked: session not superadmin');
       return;
     }
+    _initNewUserAlert();
+    const nameEl = document.getElementById('new-user-name');
+    const emailEl = document.getElementById('new-user-email');
+    const overlayEl = document.getElementById('new-user-alert-overlay');
+    
+    if (!nameEl || !emailEl || !overlayEl) {
+      console.error('[ModModals] Required elements not found', { nameEl, emailEl, overlayEl });
+      return;
+    }
+    
     console.log('[ModModals] Showing alert for:', userData.name);
-    document.getElementById('new-user-name').textContent  = userData.name;
-    document.getElementById('new-user-email').textContent = userData.email;
-    document.getElementById('new-user-alert-overlay').classList.remove('hidden');
+    nameEl.textContent = userData.name;
+    emailEl.textContent = userData.email;
+    overlayEl.classList.remove('hidden');
     S.pendingReviewUsers.push(userData);
   }
 
