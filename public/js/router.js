@@ -8,9 +8,10 @@ const Router = (() => {
     recover:  'sec-recover',
     chat:     'sec-chat',
     account:  'sec-account',
-    admin:    'sec-admin'
+    admin:    'sec-admin',
+    media:    'sec-media'
   };
-  const AUTH_ROUTES    = ['chat', 'account', 'admin'];
+  const AUTH_ROUTES    = ['chat', 'account', 'admin', 'media'];
   const NO_AUTH_ROUTES = ['login', 'register', 'recover'];
   let _current = null;
 
@@ -53,7 +54,7 @@ const Router = (() => {
       document.getElementById('chat-empty')?.classList.remove('hidden');
       document.getElementById('chat-window')?.classList.add('hidden');
       document.getElementById('chat-messages')?.querySelectorAll('*').forEach(el => el.remove());
-      
+
       Chat.connect();
       Chat.loadUsers();
       Chat.initSearch();
@@ -65,6 +66,9 @@ const Router = (() => {
       Admin.loadMedia();
       Admin.loadReports?.();
       Admin.loadInterfaceSettings?.();
+    }
+    if (route === 'media') {
+      MediaGallery.loadMedia();
     }
     if (route === 'account') { _renderAccount(); window.BlockManager?.loadBlockedUsers(); }
   }
