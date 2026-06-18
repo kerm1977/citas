@@ -247,7 +247,7 @@ const Router = (() => {
     }
 
     // Inicializar selector de países
-    PhoneSelector.init('e-country');
+    Validate.populateCountries('e-country');
 
     // Manejar envío del formulario
     const form = document.getElementById('form-edit-profile');
