@@ -108,6 +108,31 @@
   display: none;
 }
 
+.admin-search-box {
+  margin-bottom: 1rem;
+}
+
+.admin-search-box input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.admin-search-box input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255,255,255,0.1);
+}
+
+.admin-search-box input::placeholder {
+  color: var(--text-muted);
+}
+
 .media-filters {
   display: flex;
   gap: 0.5rem;

@@ -4,6 +4,7 @@
 const Admin = (() => {
   let _mediaFiles = [];
   let _currentFilter = 'all';
+  let _allUsers = [];
 
   function _h() { return { 'Content-Type':'application/json', Authorization: 'Bearer ' + (window._session?.token||'') }; }
   function _isAdmin() {
@@ -46,19 +47,52 @@ const Admin = (() => {
         console.error('[Admin] Failed to load users:', data.msg);
         return;
       }
-      const el = document.getElementById('admin-user-list');
-      if (!el) {
-        console.error('[Admin] admin-user-list element not found');
-        return;
-      }
-      if (!data.users || !data.users.length) {
-        el.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">No hay usuarios</p>';
-        return;
-      }
-      el.innerHTML = data.users.map(_userRowHTML).join('');
+      _allUsers = data.users || [];
+      renderUserList(_allUsers);
     } catch (e) {
       console.error('[Admin] Error loading users:', e);
     }
+  }
+
+  function renderUserList(users) {
+    const el = document.getElementById('admin-user-list');
+    if (!el) {
+      console.error('[Admin] admin-user-list element not found');
+      return;
+    }
+    if (!users || !users.length) {
+      el.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">No hay usuarios</p>';
+      return;
+    }
+    el.innerHTML = users.map(_userRowHTML).join('');
+  }
+
+  function toggleUsersDropdown() {
+    const dropdown = document.getElementById('admin-users-dropdown');
+    const btn = document.querySelector('.admin-dropdown-btn');
+    if (dropdown) {
+      dropdown.classList.toggle('hidden');
+      btn.classList.toggle('open');
+    }
+  }
+
+  function toggleReportsDropdown() {
+    const dropdown = document.getElementById('admin-reports-dropdown');
+    const btn = document.querySelectorAll('.admin-dropdown-btn')[2];
+    if (dropdown) {
+      dropdown.classList.toggle('hidden');
+      btn.classList.toggle('open');
+    }
+  }
+
+  function searchUsers(query) {
+    const searchLower = query.toLowerCase();
+    const filtered = _allUsers.filter(u => {
+      return (u.name && u.name.toLowerCase().includes(searchLower)) ||
+             (u.email && u.email.toLowerCase().includes(searchLower)) ||
+             (u.phone && u.phone.toLowerCase().includes(searchLower));
+    });
+    renderUserList(filtered);
   }
 
   function _userRowHTML(u) {
@@ -494,7 +528,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;
