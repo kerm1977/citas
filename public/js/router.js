@@ -230,12 +230,20 @@ const Router = (() => {
     
     // Cargar teléfono si existe
     if (u.phone) {
-      const phoneParts = u.phone.split(' ');
+      // El teléfono está guardado como "+57 1234567890" (código + espacio + número)
+      const phoneParts = u.phone.trim().split(' ');
       if (phoneParts.length >= 2) {
         document.getElementById('e-country').value = phoneParts[0];
-        document.getElementById('e-phone').value = phoneParts[1];
+        document.getElementById('e-phone').value = phoneParts.slice(1).join(' ');
       } else {
-        document.getElementById('e-phone').value = u.phone;
+        // Si no hay espacio, intentar extraer código de país (primeros 3-4 caracteres con +)
+        const match = u.phone.match(/^(\+\d{1,4})(.*)$/);
+        if (match) {
+          document.getElementById('e-country').value = match[1];
+          document.getElementById('e-phone').value = match[2].trim();
+        } else {
+          document.getElementById('e-phone').value = u.phone;
+        }
       }
     }
 
