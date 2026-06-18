@@ -145,13 +145,17 @@ const Router = (() => {
     try {
       const res = await fetch('/api/public/register-message');
       const data = await res.json();
+      console.log('[Router] Register message response:', data);
       const message = data.ok ? data.message : '';
+      const title = data.ok ? (data.title || '🌸 Bienvenidas a Zona Segura') : '🌸 Bienvenidas a Zona Segura';
+      console.log('[Router] Message to display:', message);
+      console.log('[Router] Title to display:', title);
       const ov = document.createElement('div');
       ov.className = 'report-overlay';
       ov.innerHTML = `
         <div class="report-card glass-card">
           <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
-          <h3 class="report-title">🌸 Bienvenidas a Zona Segura</h3>
+          <h3 class="report-title">${_esc(title)}</h3>
           <div class="report-field">
             <div class="register-info-text">${_esc(message)}</div>
           </div>

@@ -108,6 +108,49 @@
   display: none;
 }
 
+.admin-settings-input {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.9rem;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.admin-settings-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255,255,255,0.12);
+}
+
+.admin-settings-textarea {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.9rem;
+  color: #fff;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.admin-settings-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255,255,255,0.12);
+}
+
+.admin-settings-label {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
 .admin-search-box {
   margin-bottom: 1rem;
 }

@@ -494,22 +494,32 @@ const Admin = (() => {
         <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
         <h3 class="report-title">✏️ Editar modal de registro</h3>
         <div class="report-field">
+          <label class="admin-settings-label">Título del modal de registro:</label>
+          <input type="text" id="register-modal-title" class="admin-settings-input" placeholder="🌸 Bienvenidas a Zona Segura"/>
+        </div>
+        <div class="report-field">
           <label class="admin-settings-label">Texto/instrucciones del modal de registro:</label>
           <textarea id="register-modal-text" class="admin-settings-textarea" rows="6" placeholder="Escribe las instrucciones que aparecerán en el modal de registro..."></textarea>
         </div>
         <button id="save-register-modal" class="btn report-submit-btn">Guardar</button>
       </div>`;
     document.body.appendChild(ov);
-    /* Cargar register_message actual */
+    /* Cargar register_message y register_title actuales */
     fetch('/api/admin/settings', { headers: _h() }).then(r => r.json()).then(data => {
       console.log('[Admin] Settings response:', data);
-      if (data.ok && data.settings.register_message) {
-        ov.querySelector('#register-modal-text').value = data.settings.register_message;
+      if (data.ok) {
+        if (data.settings.register_message) {
+          ov.querySelector('#register-modal-text').value = data.settings.register_message;
+        }
+        if (data.settings.register_title) {
+          ov.querySelector('#register-modal-title').value = data.settings.register_title;
+        }
       } else {
-        console.log('[Admin] No register_message found in response');
+        console.log('[Admin] No settings found in response');
       }
     }).catch(e => console.error('[Admin] Error loading settings:', e));
     ov.querySelector('#save-register-modal').onclick = async () => {
+      const title = ov.querySelector('#register-modal-title').value.trim();
       const msg = ov.querySelector('#register-modal-text').value.trim();
       const btn = ov.querySelector('#save-register-modal');
       btn.disabled = true; btn.textContent = 'Guardando…';
@@ -517,7 +527,7 @@ const Admin = (() => {
         const r = await fetch('/api/admin/settings', {
           method: 'POST',
           headers: _h(),
-          body: JSON.stringify({ register_message: msg })
+          body: JSON.stringify({ register_title: title, register_message: msg })
         });
         const d = await r.json();
         ov.remove();

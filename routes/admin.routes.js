@@ -94,16 +94,19 @@ router.patch('/users/:id/warning', (req, res) => {
 router.get('/settings', (_req, res) => {
   const warningMessage = q.getSetting('warning_message') || '';
   const registerMessage = q.getSetting('register_message') || '';
-  res.json({ ok: true, settings: { warning_message: warningMessage, register_message: registerMessage } });
+  const registerTitle = q.getSetting('register_title') || '';
+  res.json({ ok: true, settings: { warning_message: warningMessage, register_message: registerMessage, register_title: registerTitle } });
 });
 
 /* POST /api/admin/settings — guardar configuración de admin */
 router.post('/settings', (req, res) => {
-  const { warning_message, register_message } = req.body;
+  const { warning_message, register_message, register_title } = req.body;
   if (warning_message !== undefined && typeof warning_message !== 'string') return res.json({ ok: false, msg: 'warning_message debe ser texto' });
   if (register_message !== undefined && typeof register_message !== 'string') return res.json({ ok: false, msg: 'register_message debe ser texto' });
+  if (register_title !== undefined && typeof register_title !== 'string') return res.json({ ok: false, msg: 'register_title debe ser texto' });
   if (warning_message !== undefined) q.setSetting('warning_message', warning_message);
   if (register_message !== undefined) q.setSetting('register_message', register_message);
+  if (register_title !== undefined) q.setSetting('register_title', register_title);
   res.json({ ok: true });
 });
 
@@ -113,7 +116,9 @@ const publicRouter = express.Router();
 const { getSetting } = require('../db/queries-admin-settings');
 publicRouter.get('/register-message', (_req, res) => {
   const msg = getSetting('register_message') || '';
-  res.json({ ok: true, message: msg });
+  const title = getSetting('register_title') || '🌸 Bienvenidas a Zona Segura';
+  console.log('[Public] Register message requested, returning:', { title, msg });
+  res.json({ ok: true, title, message: msg });
 });
 
 /* POST /api/admin/messages — enviar mensaje directo desde admin a usuario */
