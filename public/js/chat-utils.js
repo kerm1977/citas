@@ -60,7 +60,7 @@ const ChatUtils = (() => {
   }
 
   function updatePageTitle(totalUnread) {
-    const baseTitle = 'Chat App';
+    const baseTitle = 'Zona Segura';
     document.title = totalUnread > 0 ? `(${totalUnread}) ${baseTitle}` : baseTitle;
   }
 
