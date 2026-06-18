@@ -370,7 +370,7 @@ const Admin = (() => {
     }).catch(() => {});
     ov.querySelector('#report-activate-warning').onclick = async () => {
       const msg = ov.querySelector('#report-warning-message').value.trim();
-      if (!msg) { alert('Escribe un mensaje de advertencia'); return; }
+      if (!msg) { Notifications.error('Escribe un mensaje de advertencia'); return; }
       const btn = ov.querySelector('#report-activate-warning');
       btn.disabled = true; btn.textContent = 'Guardando…';
       try {
@@ -385,8 +385,8 @@ const Admin = (() => {
           body: JSON.stringify({ active: true })
         });
         btn.disabled = false; btn.textContent = 'Activar advertencia';
-        alert('Advertencia activada');
-      } catch (e) { btn.disabled = false; btn.textContent = 'Activar advertencia'; alert('Error de red'); }
+        Notifications.success('Advertencia activada');
+      } catch (e) { btn.disabled = false; btn.textContent = 'Activar advertencia'; Notifications.error('Error de red'); }
     };
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
@@ -402,12 +402,12 @@ const Admin = (() => {
       });
       const data = await res.json();
       if (data.ok) {
-        alert(`Usuario bloqueado por ${minutes} minutos`);
+        Notifications.success(`Usuario bloqueado por ${minutes} minutos`);
         document.querySelector('.report-overlay')?.remove();
       } else {
-        alert('Error: ' + (data.msg || 'No se pudo bloquear'));
+        Notifications.error('Error: ' + (data.msg || 'No se pudo bloquear'));
       }
-    } catch (e) { alert('Error de red'); }
+    } catch (e) { Notifications.error('Error de red'); }
   }
 
   async function deleteReportedUser(userId, name) {
@@ -416,17 +416,17 @@ const Admin = (() => {
       const res  = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE', headers: _h() });
       const data = await res.json();
       if (data.ok) {
-        alert('Usuario eliminado');
+        Notifications.success('Usuario eliminado');
         document.querySelector('.report-overlay')?.remove();
         loadReports();
       } else {
-        alert('Error: ' + (data.msg || 'No se pudo eliminar'));
+        Notifications.error('Error: ' + (data.msg || 'No se pudo eliminar'));
       }
-    } catch (e) { alert('Error de red'); }
+    } catch (e) { Notifications.error('Error de red'); }
   }
 
   function openMsgModal(userId, name) {
-    if (!userId) { alert('ID de usuario no disponible'); return; }
+    if (!userId) { Notifications.error('ID de usuario no disponible'); return; }
     const ov = document.createElement('div');
     ov.className = 'report-overlay';
     ov.innerHTML = `
@@ -447,7 +447,7 @@ const Admin = (() => {
     document.body.appendChild(ov);
     ov.querySelector('#admin-msg-send').onclick = async () => {
       const content = ov.querySelector('#admin-msg-content').value.trim();
-      if (!content) { alert('Escribe un mensaje'); return; }
+      if (!content) { Notifications.error('Escribe un mensaje'); return; }
       const activateWarning = ov.querySelector('#admin-activate-warning').checked;
       const btn = ov.querySelector('#admin-msg-send');
       btn.disabled = true; btn.textContent = 'Enviando…';
@@ -467,11 +467,11 @@ const Admin = (() => {
         }
         ov.remove();
         if (data.ok) {
-          alert('Mensaje enviado' + (activateWarning ? ' y advertencia activada' : ''));
+          Notifications.success('Mensaje enviado' + (activateWarning ? ' y advertencia activada' : ''));
         } else {
-          alert('Error: ' + (data.msg || 'No se pudo enviar'));
+          Notifications.error('Error: ' + (data.msg || 'No se pudo enviar'));
         }
-      } catch (e) { ov.remove(); alert('Error de red'); }
+      } catch (e) { ov.remove(); Notifications.error('Error de red'); }
     };
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
@@ -531,9 +531,9 @@ const Admin = (() => {
         });
         const d = await r.json();
         ov.remove();
-        if (d.ok) alert('Modal de registro actualizado');
-        else alert('Error: ' + (d.msg || 'No se pudo guardar'));
-      } catch (e) { ov.remove(); alert('Error de red'); }
+        if (d.ok) Notifications.success('Modal de registro actualizado');
+        else Notifications.error('Error: ' + (d.msg || 'No se pudo guardar'));
+      } catch (e) { ov.remove(); Notifications.error('Error de red'); }
     };
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
