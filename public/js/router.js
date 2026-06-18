@@ -297,13 +297,18 @@ const Router = (() => {
         body: JSON.stringify({ name, email, phone: fullPhone })
       });
 
+      console.log('Response status:', res.status);
       const data = await res.json();
+      console.log('Response data:', data);
+      
       if (data.ok) {
         // Actualizar sesión
         window._session.user.name = name;
         window._session.user.email = email;
         window._session.user.phone = fullPhone;
-        Auth.saveSession(window._session);
+        // Guardar sesión actualizada
+        const _SESSION_KEY = '_chatapp_session';
+        sessionStorage.setItem(_SESSION_KEY, JSON.stringify(window._session));
         
         Toast.show('Perfil actualizado', 'success');
         go('account');
@@ -311,7 +316,8 @@ const Router = (() => {
         Toast.show(data.msg || 'Error al actualizar perfil', 'error');
       }
     } catch (e) {
-      Toast.show('Error de red', 'error');
+      console.error('Error al guardar perfil:', e);
+      Toast.show('Error de red: ' + e.message, 'error');
     }
   }
 
