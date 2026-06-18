@@ -171,6 +171,21 @@ const Admin = (() => {
     Toast.show('Usuarios exportados', 'success');
   }
 
+  async function exportReports() {
+    if (!_isAdmin()) return;
+    const res = await fetch('/api/reports', { headers: _h() });
+    const data = await res.json();
+    if (!data.ok) return Notifications.error('Error al exportar denuncias');
+    const blob = new Blob([JSON.stringify(data.reports, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'denuncias_export_' + Date.now() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    Notifications.success('Denuncias exportadas');
+  }
+
   async function loadMedia() {
     if (!_isAdmin()) return;
     try {
@@ -248,6 +263,10 @@ const Admin = (() => {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
             Ver
           </a>
+          <button class="btn btn-sm btn-danger" onclick="Admin.deleteFile('${f.url}', '${f.name}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Eliminar
+          </button>
         </div>
       </div>
     `;
@@ -304,6 +323,7 @@ const Admin = (() => {
           <div class="report-item-header">
             <span class="report-badge">🚨 Denuncia</span>
             <span class="report-date">${new Date(r.created_at).toLocaleString('es-MX')}</span>
+            <button class="btn btn-sm btn-danger" onclick="Admin.deleteReport(${r.id})">Eliminar</button>
           </div>
           <div class="report-item-body">
             <div class="report-row"><strong>Emisor:</strong> ${_esc(r.emitter_name  || '—')}</div>
@@ -425,6 +445,38 @@ const Admin = (() => {
     } catch (e) { Notifications.error('Error de red'); }
   }
 
+  async function deleteReport(reportId) {
+    if (!confirm('¿Eliminar esta denuncia? Esta acción es irreversible.')) return;
+    try {
+      const res = await fetch(`/api/reports/${reportId}`, { method: 'DELETE', headers: _h() });
+      const data = await res.json();
+      if (data.ok) {
+        Notifications.success('Denuncia eliminada');
+        loadReports();
+      } else {
+        Notifications.error('Error: ' + (data.msg || 'No se pudo eliminar'));
+      }
+    } catch (e) { Notifications.error('Error de red'); }
+  }
+
+  async function deleteFile(url, name) {
+    if (!confirm(`¿Eliminar el archivo "${name}"? Esta acción es irreversible.`)) return;
+    try {
+      const res = await fetch('/api/admin/media', {
+        method: 'DELETE',
+        headers: _h(),
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Notifications.success('Archivo eliminado');
+        loadMedia();
+      } else {
+        Notifications.error('Error: ' + (data.msg || 'No se pudo eliminar'));
+      }
+    } catch (e) { Notifications.error('Error de red'); }
+  }
+
   function openMsgModal(userId, name) {
     if (!userId) { Notifications.error('ID de usuario no disponible'); return; }
     const ov = document.createElement('div');
@@ -538,7 +590,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;

@@ -83,6 +83,30 @@ router.get('/media', (_req, res) => {
   res.json({ ok: true, files });
 });
 
+/* DELETE /api/admin/media — eliminar archivo */
+router.delete('/media', (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.json({ ok: false, msg: 'URL requerida' });
+  
+  const fs = require('fs');
+  const path = require('path');
+  const uploadsDir = path.join(__dirname, '../data/uploads');
+  const fileName = path.basename(url);
+  const filePath = path.join(uploadsDir, fileName);
+  
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      res.json({ ok: true });
+    } else {
+      res.json({ ok: false, msg: 'Archivo no encontrado' });
+    }
+  } catch (e) {
+    console.error('[Admin] Error deleting file:', e);
+    res.json({ ok: false, msg: 'Error al eliminar archivo' });
+  }
+});
+
 /* PATCH /api/admin/users/:id/warning — activar/desactivar advertencia */
 router.patch('/users/:id/warning', (req, res) => {
   const { active } = req.body;

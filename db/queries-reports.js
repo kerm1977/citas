@@ -36,4 +36,8 @@ function getReportById(id) {
   return dbGet('SELECT * FROM reports WHERE id=?', [id]);
 }
 
-module.exports = { createReport, getReports, getReportById };
+function deleteReport(id) {
+  dbRun(`DELETE FROM reports WHERE id=?`, [id]);
+}
+
+module.exports = { createReport, getReports, getReportById, deleteReport };

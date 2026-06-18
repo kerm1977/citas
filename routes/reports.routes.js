@@ -64,4 +64,19 @@ router.get('/', authRequired, (req, res) => {
   }
 });
 
+/* DELETE /api/reports/:id — eliminar denuncia (solo admin/superadmin) */
+router.delete('/:id', authRequired, (req, res) => {
+  const role = req.user.role;
+  if (role !== 'admin' && role !== 'superadmin') {
+    return res.status(403).json({ ok: false, msg: 'Acceso denegado' });
+  }
+  try {
+    q.deleteReport(req.params.id);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[Reports] Error deleting report:', e.message);
+    res.status(500).json({ ok: false, msg: 'Error al eliminar denuncia' });
+  }
+});
+
 module.exports = router;

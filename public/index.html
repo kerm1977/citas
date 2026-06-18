@@ -279,6 +279,12 @@
         <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </button>
       <div id="admin-reports-dropdown" class="admin-dropdown-content hidden">
+        <div class="admin-dropdown-actions">
+          <button class="btn btn-sm" onclick="Admin.exportReports()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Exportar JSON
+          </button>
+        </div>
         <div id="admin-reports-list" class="admin-reports-list"></div>
       </div>
     </div>
@@ -410,7 +416,7 @@
 <script src="/js/blocks.js?v=2"></script>
 <script src="/js/report-modal.js?v=1"></script>
 <script src="/js/chat.js?v=5"></script>
-<script src="/js/admin.js?v=12"></script>
+<script src="/js/admin.js?v=13"></script>
 <script src="/js/media-gallery.js?v=2"></script>
 <script src="/js/notifications.js?v=1"></script>
 <script src="/js/router.js?v=15"></script>
