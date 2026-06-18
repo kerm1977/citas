@@ -226,6 +226,40 @@
     <div id="acct-avatar-zone"></div>
     <div id="acct-info"></div>
     <div id="blocked-users-section"></div>
+    <button class="btn btn-full" style="margin-top: 1rem;" onclick="Router.showEditProfile()">Editar perfil</button>
+  </div>
+</section>
+
+<!-- ── SECTION: EDIT PROFILE ──────────────────────────── -->
+<section id="sec-edit-profile" class="auth-section hidden">
+  <div class="auth-card glass-card">
+    <button class="back-btn" onclick="Router.go('account')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Volver
+    </button>
+    <h2 class="auth-title">Editar perfil</h2>
+    <form id="form-edit-profile" novalidate>
+      <div id="edit-avatar-zone" class="avatar-zone"></div>
+      <div class="form-group">
+        <label class="form-label">Nombre de Usuario</label>
+        <input id="e-name" type="text" class="form-control" placeholder="Nombre Apellido" autocomplete="name" oninput="this.value = this.value.replace(/\b\w/g, l => l.toUpperCase())"/>
+        <span class="form-error" id="e-name-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono (opcional)</label>
+        <div class="phone-wrap">
+          <select id="e-country" class="form-control phone-select"></select>
+          <input id="e-phone" type="tel" class="form-control" placeholder="88887777" oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+        </div>
+        <span class="form-error" id="e-phone-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input id="e-email" type="email" class="form-control" placeholder="tu@correo.com" oninput="this.value = this.value.toLowerCase()"/>
+        <span class="form-error" id="e-email-err"></span>
+      </div>
+      <button type="submit" class="btn btn-full" id="edit-profile-btn">Guardar cambios</button>
+    </form>
   </div>
 </section>
 
@@ -437,7 +471,7 @@
 <script src="/js/admin.js?v=19"></script>
 <script src="/js/media-gallery.js?v=2"></script>
 <script src="/js/notifications.js?v=1"></script>
-<script src="/js/router.js?v=18"></script>
+<script src="/js/router.js?v=19"></script>
 <script src="/js/app.js?v=2"></script>
 <script src="/js/sw-register.js?v=2"></script>
 <script src="/js/eye-button.js?v=2"></script>

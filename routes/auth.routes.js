@@ -126,6 +126,30 @@ router.put('/avatar', require('../middleware/auth.middleware').authRequired,
   }
 );
 
+router.put('/profile', require('../middleware/auth.middleware').authRequired, async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    
+    if (!name || !email) {
+      return res.json({ ok: false, msg: 'Nombre y email son requeridos' });
+    }
+
+    // Verificar que el email no esté en uso por otro usuario
+    const existingUser = q.getUserByEmail(email);
+    if (existingUser && existingUser.id !== req.user.id) {
+      return res.json({ ok: false, msg: 'Este correo ya está en uso' });
+    }
+
+    // Actualizar datos del usuario
+    q.updateUserProfile(req.user.id, { name, email, phone });
+    
+    res.json({ ok: true, msg: 'Perfil actualizado' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error interno' });
+  }
+});
+
 /* ═════════════════════════════════════════════════════════════════════════════
  *  ⚠️  CRÍTICO — RUTAS DE MODERACIÓN — NO MODIFICAR  ⚠️
  * ─────────────────────────────────────────────────────────────────────────────────

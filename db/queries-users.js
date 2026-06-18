@@ -41,6 +41,9 @@ function updateUserOnline(id, online) {
 function updateUserAvatar(id, avatar) {
   dbRun('UPDATE users SET avatar=? WHERE id=?', [avatar, id]);
 }
+function updateUserProfile(id, { name, email, phone }) {
+  dbRun('UPDATE users SET name=?, email=?, phone=? WHERE id=?', [name, email, phone, id]);
+}
 function blockUser(id, blocked) {
   dbRun('UPDATE users SET is_blocked=? WHERE id=? AND is_hidden=0', [blocked ? 1 : 0, id]);
 }
@@ -75,6 +78,6 @@ function countMessages() {
 module.exports = {
   createUser, getUserByEmail, getUserByEmailAny, getUserById,
   getAllUsers, getAllUsersIncludingHidden, updateUserOnline,
-  updateUserAvatar, blockUser, deleteUser, getUserByRecovery,
+  updateUserAvatar, updateUserProfile, blockUser, deleteUser, getUserByRecovery,
   updatePassword, setUserRole, setWarningActive, countUsers, countOnline, countMessages
 };

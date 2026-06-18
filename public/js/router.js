@@ -3,15 +3,16 @@
 
 const Router = (() => {
   const SECTIONS = {
-    login:    'sec-login',
-    register: 'sec-register',
-    recover:  'sec-recover',
-    chat:     'sec-chat',
-    account:  'sec-account',
-    admin:    'sec-admin',
-    media:    'sec-media'
+    login:        'sec-login',
+    register:     'sec-register',
+    recover:      'sec-recover',
+    chat:         'sec-chat',
+    account:      'sec-account',
+    'edit-profile': 'sec-edit-profile',
+    admin:        'sec-admin',
+    media:        'sec-media'
   };
-  const AUTH_ROUTES    = ['chat', 'account', 'admin', 'media'];
+  const AUTH_ROUTES    = ['chat', 'account', 'edit-profile', 'admin', 'media'];
   const NO_AUTH_ROUTES = ['login', 'register', 'recover'];
   let _current = null;
 
@@ -48,6 +49,7 @@ const Router = (() => {
     if (route === 'login')    Auth.initLoginForm();
     if (route === 'register') Auth.initRegisterForm();
     if (route === 'recover')  Auth.initRecoverForm();
+    if (route === 'edit-profile') initEditProfile();
     if (route === 'chat') {
       /* Reset mobile sidebar state when entering chat */
       document.getElementById('chat-sidebar')?.classList.remove('mobile-hidden');
@@ -214,6 +216,96 @@ const Router = (() => {
     }
   }
 
+  function showEditProfile() {
+    go('edit-profile');
+  }
+
+  function initEditProfile() {
+    const u = window._session?.user;
+    if (!u) return;
+
+    // Cargar datos en el formulario
+    document.getElementById('e-name').value = u.name || '';
+    document.getElementById('e-email').value = u.email || '';
+    
+    // Cargar teléfono si existe
+    if (u.phone) {
+      const phoneParts = u.phone.split(' ');
+      if (phoneParts.length >= 2) {
+        document.getElementById('e-country').value = phoneParts[0];
+        document.getElementById('e-phone').value = phoneParts[1];
+      } else {
+        document.getElementById('e-phone').value = u.phone;
+      }
+    }
+
+    // Inicializar avatar editor
+    const zone = document.getElementById('edit-avatar-zone');
+    if (zone) {
+      zone.innerHTML = AvatarEditor.buildHTML('edit-av', null);
+      AvatarEditor.setDisplay('edit-av', u.avatar, u.name);
+    }
+
+    // Inicializar selector de países
+    PhoneSelector.init('e-country');
+
+    // Manejar envío del formulario
+    const form = document.getElementById('form-edit-profile');
+    if (form) {
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        await saveProfile();
+      };
+    }
+  }
+
+  async function saveProfile() {
+    const name = document.getElementById('e-name').value.trim();
+    const email = document.getElementById('e-email').value.trim();
+    const country = document.getElementById('e-country').value;
+    const phone = document.getElementById('e-phone').value.trim();
+
+    // Validaciones básicas
+    if (!name) {
+      Toast.show('El nombre es requerido', 'error');
+      return;
+    }
+    if (!email || !Validate.email(email)) {
+      Toast.show('Email inválido', 'error');
+      return;
+    }
+
+    // Construir teléfono completo si se proporcionó
+    const fullPhone = phone ? `${country} ${phone}` : '';
+
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + window._session?.token 
+        },
+        body: JSON.stringify({ name, email, phone: fullPhone })
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        // Actualizar sesión
+        window._session.user.name = name;
+        window._session.user.email = email;
+        window._session.user.phone = fullPhone;
+        Auth.saveSession(window._session);
+        
+        Toast.show('Perfil actualizado', 'success');
+        go('account');
+      } else {
+        Toast.show(data.msg || 'Error al actualizar perfil', 'error');
+      }
+    } catch (e) {
+      Toast.show('Error de red', 'error');
+    }
+  }
+
   function init() {
     window.onpopstate = (e) => { if (e.state?.route) go(e.state.route); };
     const session = Auth.loadSession();
@@ -222,7 +314,7 @@ const Router = (() => {
     go(route);
   }
 
-  return { go, init, showRegisterModal };
+  return { go, init, showRegisterModal, showEditProfile };
 })();
 
 window.Router = Router;
