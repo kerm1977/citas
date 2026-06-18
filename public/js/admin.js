@@ -264,6 +264,10 @@ const Admin = (() => {
       if (data.ok) {
         Notifications.success(`Usuario "${name}" aprobado`);
         document.querySelector('.report-overlay')?.remove();
+        // Eliminar usuario de la lista de pendientes en ModerationSystem
+        if (window._MS && window._MS.pendingReviewUsers) {
+          window._MS.pendingReviewUsers = window._MS.pendingReviewUsers.filter(u => u.id !== userId);
+        }
         loadPendingUsers();
       } else {
         Notifications.error('Error: ' + (data.msg || 'No se pudo aprobar'));
@@ -285,6 +289,10 @@ const Admin = (() => {
       if (data.ok) {
         Notifications.success(`Usuario "${name}" rechazado`);
         document.querySelector('.report-overlay')?.remove();
+        // Eliminar usuario de la lista de pendientes en ModerationSystem
+        if (window._MS && window._MS.pendingReviewUsers) {
+          window._MS.pendingReviewUsers = window._MS.pendingReviewUsers.filter(u => u.id !== userId);
+        }
         loadPendingUsers();
       } else {
         Notifications.error('Error: ' + (data.msg || 'No se pudo rechazar'));

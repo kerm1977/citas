@@ -76,6 +76,20 @@ window._ModSocket = (function () {
       window._ModModals._updateUsersListVisibility();
     });
 
+    S.socket.on('moderation:user_approved', ({ userId }) => {
+      // Eliminar usuario de la lista de pendientes
+      S.pendingReviewUsers = S.pendingReviewUsers.filter(u => u.id !== userId);
+      // Cerrar modal si está mostrando este usuario
+      const overlay = document.getElementById('new-user-alert-overlay');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        overlay.classList.add('hidden');
+      }
+      // Cerrar chat de revisión si está activo
+      if (S.activeReviewChat && S.activeReviewChat.id === userId) {
+        window._ModChat._closeReviewChat();
+      }
+    });
+
     S.socket.on('moderation:rejected', () => {
       /* Si es superusuario, cerrar chat de revisión y volver al chat normal sin modales */
       if (S.currentUser?.role === 'superadmin') {
