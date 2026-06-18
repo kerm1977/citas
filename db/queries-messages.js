@@ -20,6 +20,10 @@ function getMessageById(id) {
   return dbGet('SELECT * FROM messages WHERE id=?', [id]);
 }
 
+function getMessageByContent(content) {
+  return dbGet('SELECT * FROM messages WHERE content=?', [content]);
+}
+
 /* ⚠️ CRÍTICO — DESC+LIMIT luego .reverse() para orden cronológico. NO cambiar. */
 function getMessages(room, limit = 50, offset = 0) {
   const rows = dbAll(
@@ -80,6 +84,6 @@ function getUnreadCountsForUser(userId) {
 }
 
 module.exports = {
-  saveMessage, getMessages, markRead, deleteMessage, getRoomId, getMessageById,
+  saveMessage, getMessages, markRead, deleteMessage, getRoomId, getMessageById, getMessageByContent,
   getUnreadCountsForUser
 };

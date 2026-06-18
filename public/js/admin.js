@@ -2,6 +2,9 @@
 'use strict';
 
 const Admin = (() => {
+  let _mediaFiles = [];
+  let _currentFilter = 'all';
+
   function _h() { return { 'Content-Type':'application/json', Authorization: 'Bearer ' + (window._session?.token||'') }; }
   function _isAdmin() {
     const r = window._session?.user?.role;
@@ -144,25 +147,67 @@ const Admin = (() => {
         console.error('[Admin] Failed to load media:', data.msg);
         return;
       }
-      const el = document.getElementById('admin-media-list');
-      if (!el) {
-        console.error('[Admin] admin-media-list element not found');
-        return;
-      }
-      if (!data.files || !data.files.length) {
-        el.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">No hay archivos compartidos</p>';
-        return;
-      }
-      el.innerHTML = data.files.map(f => {
-        const ext = f.name.split('.').pop().toUpperCase();
-        const typeIcon = ext === 'JPG' || ext === 'JPEG' || ext === 'PNG' || ext === 'GIF' || ext === 'WEBP' ? '🖼️' :
-                        ext === 'MP4' || ext === 'WEBM' || ext === 'MOV' ? '🎬' :
-                        ext === 'MP3' || ext === 'WAV' || ext === 'OGG' ? '🎵' : '📄';
-        return `
-      <div class="admin-media-item">
+      _mediaFiles = data.files || [];
+      renderMediaList();
+    } catch (e) {
+      console.error('[Admin] Error loading media:', e);
+    }
+  }
+
+  function toggleMediaDropdown() {
+    const dropdown = document.getElementById('admin-media-dropdown');
+    const btn = document.querySelector('.admin-dropdown-btn');
+    if (dropdown) {
+      dropdown.classList.toggle('hidden');
+      btn.classList.toggle('open');
+    }
+  }
+
+  function filterMedia(filter) {
+    _currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    renderMediaList();
+  }
+
+  function renderMediaList() {
+    const el = document.getElementById('admin-media-list');
+    if (!el) {
+      console.error('[Admin] admin-media-list element not found');
+      return;
+    }
+    if (!_mediaFiles.length) {
+      el.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">No hay archivos compartidos</p>';
+      return;
+    }
+
+    const filtered = _mediaFiles.filter(f => {
+      if (_currentFilter === 'all') return true;
+      const ext = f.name.split('.').pop().toLowerCase();
+      if (_currentFilter === 'image') return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+      if (_currentFilter === 'video') return ['mp4', 'webm', 'mov'].includes(ext);
+      if (_currentFilter === 'document') return ['pdf', 'doc', 'docx', 'txt', 'zip'].includes(ext);
+      return true;
+    });
+
+    if (!filtered.length) {
+      el.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">No hay archivos de este tipo</p>';
+      return;
+    }
+
+    el.innerHTML = filtered.map(f => {
+      const ext = f.name.split('.').pop().toUpperCase();
+      const typeIcon = ext === 'JPG' || ext === 'JPEG' || ext === 'PNG' || ext === 'GIF' || ext === 'WEBP' ? '🖼️' :
+                      ext === 'MP4' || ext === 'WEBM' || ext === 'MOV' ? '🎬' :
+                      ext === 'MP3' || ext === 'WAV' || ext === 'OGG' ? '🎵' : '📄';
+      const dateStr = f.message_created ? new Date(f.message_created).toLocaleString() : new Date(f.created).toLocaleString();
+      return `
+      <div class="admin-media-item" oncontextmenu="Admin.showMediaContextMenu(event, '${f.url}', '${f.name}')">
         <div class="media-info">
-          <div class="media-name">${typeIcon} Archivo ${ext}</div>
-          <div class="media-meta">${(f.size/1024).toFixed(1)} KB • ${new Date(f.created).toLocaleString()}</div>
+          <div class="media-name">${typeIcon} ${f.name}</div>
+          <div class="media-meta">${(f.size/1024).toFixed(1)} KB • ${dateStr}</div>
+          <div class="media-meta">Enviado por: ${_esc(f.sender_name || 'Desconocido')}</div>
         </div>
         <div class="media-actions">
           <a href="${f.url}" target="_blank" class="btn btn-sm">
@@ -172,10 +217,43 @@ const Admin = (() => {
         </div>
       </div>
     `;
-      }).join('');
-    } catch (e) {
-      console.error('[Admin] Error loading media:', e);
-    }
+    }).join('');
+  }
+
+  function showMediaContextMenu(event, url, name) {
+    event.preventDefault();
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.innerHTML = `
+      <div class="context-menu-item" onclick="Admin.openFileLocation('${url}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        Abrir ubicación
+      </div>
+      <div class="context-menu-item" onclick="Admin.copyFileUrl('${url}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        Copiar URL
+      </div>
+    `;
+    menu.style.position = 'fixed';
+    menu.style.left = event.clientX + 'px';
+    menu.style.top = event.clientY + 'px';
+    document.body.appendChild(menu);
+
+    const closeMenu = () => {
+      menu.remove();
+      document.removeEventListener('click', closeMenu);
+    };
+    setTimeout(() => document.addEventListener('click', closeMenu), 0);
+  }
+
+  function openFileLocation(url) {
+    window.open(url, '_blank');
+  }
+
+  function copyFileUrl(url) {
+    navigator.clipboard.writeText(window.location.origin + url).then(() => {
+      Toast.show('URL copiada al portapapeles', 'success');
+    });
   }
 
   async function loadReports() {
@@ -416,7 +494,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleBlock, deleteUser, setRole, exportUsers, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, loadReports, openReportDetail, blockTemp, deleteReportedUser, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;

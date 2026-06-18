@@ -240,8 +240,24 @@
     </div>
     <div id="admin-stats" class="admin-stats"></div>
     <div id="admin-user-list" class="admin-user-list"></div>
-    <h3 class="admin-section-title">Archivos compartidos</h3>
-    <div id="admin-media-list" class="admin-media-list"></div>
+    
+    <!-- Archivos compartidos con botón desplegable -->
+    <div class="admin-dropdown-section">
+      <button class="admin-dropdown-btn" onclick="Admin.toggleMediaDropdown()">
+        <span>📁 Archivos compartidos</span>
+        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div id="admin-media-dropdown" class="admin-dropdown-content hidden">
+        <div class="media-filters">
+          <button class="filter-btn active" data-filter="all" onclick="Admin.filterMedia('all')">Todos</button>
+          <button class="filter-btn" data-filter="image" onclick="Admin.filterMedia('image')">🖼️ Imágenes</button>
+          <button class="filter-btn" data-filter="video" onclick="Admin.filterMedia('video')">🎬 Videos</button>
+          <button class="filter-btn" data-filter="document" onclick="Admin.filterMedia('document')">📄 Documentos</button>
+        </div>
+        <div id="admin-media-list" class="admin-media-list"></div>
+      </div>
+    </div>
+    
     <h3 class="admin-section-title reports-section-title">🚨 Denuncias</h3>
     <div id="admin-reports-list" class="admin-reports-list"></div>
     <h3 class="admin-section-title">🎨 Edición de Interfaz</h3>
@@ -339,7 +355,7 @@
 <script src="/js/blocks.js?v=2"></script>
 <script src="/js/report-modal.js?v=1"></script>
 <script src="/js/chat.js?v=5"></script>
-<script src="/js/admin.js?v=8"></script>
+<script src="/js/admin.js?v=9"></script>
 <script src="/js/router.js?v=13"></script>
 <script src="/js/app.js?v=2"></script>
 <script src="/js/sw-register.js?v=2"></script>

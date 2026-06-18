@@ -63,11 +63,17 @@ router.get('/media', (_req, res) => {
       files = fs.readdirSync(uploadsDir).map(f => {
         const fullPath = path.join(uploadsDir, f);
         const stats = fs.statSync(fullPath);
+        /* Buscar mensaje que contiene este archivo para obtener información del remitente */
+        const msg = q.getMessageByContent('/uploads/' + f);
+        const senderInfo = msg ? q.getUserById(msg.sender_id) : null;
         return {
           name: f,
           size: stats.size,
           created: stats.birthtime,
-          url: '/uploads/' + f
+          url: '/uploads/' + f,
+          sender_id: senderInfo?.id || null,
+          sender_name: senderInfo?.name || 'Desconocido',
+          message_created: msg?.created_at || null
         };
       });
     }
