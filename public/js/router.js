@@ -98,7 +98,7 @@ const Router = (() => {
     if (info) {
       const fields = [];
       
-      if (u.name) {
+      if (u.name && u.name.trim()) {
         fields.push(`
           <div class="acct-info-row">
             <div class="acct-info-label">
@@ -109,7 +109,7 @@ const Router = (() => {
           </div>`);
       }
       
-      if (u.email) {
+      if (u.email && u.email.trim()) {
         fields.push(`
           <div class="acct-info-row">
             <div class="acct-info-label">
@@ -120,7 +120,7 @@ const Router = (() => {
           </div>`);
       }
       
-      if (u.phone) {
+      if (u.phone && u.phone.trim() && u.phone.length > 5) {
         fields.push(`
           <div class="acct-info-row">
             <div class="acct-info-label">
@@ -131,7 +131,7 @@ const Router = (() => {
           </div>`);
       }
       
-      if (u.role) {
+      if (u.role && u.role.trim()) {
         fields.push(`
           <div class="acct-info-row">
             <div class="acct-info-label">
