@@ -87,12 +87,17 @@ const MediaGallery = (() => {
       const sizeStr = f.size < 1024 * 1024 ? (f.size / 1024).toFixed(1) + ' KB' : (f.size / (1024 * 1024)).toFixed(1) + ' MB';
 
       const imageContent = isImage 
-        ? `<img src="${f.url}" alt="${f.name}" onerror="this.style.display='none';this.parentNode.textContent='🖼️'"/>`
-        : typeIcon;
+        ? `<img src="${f.url}" alt="${f.name}" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='<span>🖼️</span>'"/>`
+        : `<span>${typeIcon}</span>`;
 
       return `
       <div class="media-card" oncontextmenu="MediaGallery.showContextMenu(event, '${f.url}', '${f.name}')">
-        <div class="media-card-image">${imageContent}</div>
+        <div class="media-card-image">
+          ${imageContent}
+          <div class="media-card-image-overlay">
+            <span>👁️</span>
+          </div>
+        </div>
         <div class="media-card-info">
           <div class="media-card-name" title="${f.name}">${f.name}</div>
           <div class="media-card-meta">${sizeStr} • ${dateStr}</div>
