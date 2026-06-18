@@ -278,7 +278,8 @@ const Router = (() => {
       Toast.show('El nombre es requerido', 'error');
       return;
     }
-    if (!email || !Validate.email(email)) {
+    // Validar email solo si se proporcionó
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       Toast.show('Email inválido', 'error');
       return;
     }

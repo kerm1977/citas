@@ -130,17 +130,19 @@ router.put('/profile', require('../middleware/auth.middleware').authRequired, as
   try {
     const { name, email, phone } = req.body;
     
-    if (!name || !email) {
-      return res.json({ ok: false, msg: 'Nombre y email son requeridos' });
+    if (!name) {
+      return res.json({ ok: false, msg: 'Nombre es requerido' });
     }
 
-    // Verificar que el email no esté en uso por otro usuario
-    const existingUser = q.getUserByEmail(email);
-    if (existingUser && existingUser.id !== req.user.id) {
-      return res.json({ ok: false, msg: 'Este correo ya está en uso' });
+    // Si se proporciona email, verificar que no esté en uso por otro usuario
+    if (email) {
+      const existingUser = q.getUserByEmail(email);
+      if (existingUser && existingUser.id !== req.user.id) {
+        return res.json({ ok: false, msg: 'Este correo ya está en uso' });
+      }
     }
 
-    // Actualizar datos del usuario
+    // Actualizar datos del usuario (email opcional)
     q.updateUserProfile(req.user.id, { name, email, phone });
     
     res.json({ ok: true, msg: 'Perfil actualizado' });
