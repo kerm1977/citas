@@ -20,7 +20,7 @@ const router = require('express').Router();
 router.post('/register', decryptBody, upload.single('avatar'), async (req, res) => {
   try {
     const { name, email, phone, password, recoveryCode } = req.body;
-    if (!name || !email || !phone || !password || !recoveryCode)
+    if (!name || !email || !password || !recoveryCode)
       return res.json({ ok: false, msg: 'Todos los campos son requeridos' });
 
     if (q.getUserByEmail(email))

@@ -30,9 +30,9 @@ const Validate = (() => {
     return '';
   }
 
-  /* Phone: only digits matching country pattern */
+  /* Phone: only digits matching country pattern (optional) */
   function phone(number, countryCode) {
-    if (!number || !number.trim()) return 'El teléfono es requerido';
+    if (!number || !number.trim()) return ''; // Phone is now optional
     if (!/^\d+$/.test(number.trim())) return 'Solo se permiten números';
     const country = COUNTRIES.find(c => c.code === countryCode);
     if (!country) return 'Selecciona un país';
