@@ -129,7 +129,13 @@ window._ModSocket = (function () {
         const data = await res.json();
         if (data.ok && data.users?.length > 0) {
           S.pendingReviewUsers = data.users;
-          /* NO mostrar modal aquí - solo se mostrará cuando el usuario se loguee (evento user:online) */
+          /* Mostrar modal para usuarios pendientes que ya están online */
+          const onlinePendingUsers = data.users.filter(u => u.online === 1);
+          if (onlinePendingUsers.length > 0) {
+            console.log('[ModSocket] Found online pending users:', onlinePendingUsers);
+            /* Mostrar modal para el primer usuario pendiente online */
+            window._ModModals.showNewUserAlert(onlinePendingUsers[0]);
+          }
         }
       } catch (e) { console.error('[ModSocket] pending-users error:', e); }
       return;
