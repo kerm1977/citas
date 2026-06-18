@@ -110,8 +110,9 @@ router.post('/settings', (req, res) => {
 /* GET /api/public/register-message — endpoint público para mensaje de registro */
 const express = require('express');
 const publicRouter = express.Router();
+const { getSetting } = require('../db/queries-admin-settings');
 publicRouter.get('/register-message', (_req, res) => {
-  const msg = q.getSetting('register_message') || '';
+  const msg = getSetting('register_message') || '';
   res.json({ ok: true, message: msg });
 });
 
