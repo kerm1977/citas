@@ -261,6 +261,17 @@
         <div id="admin-user-list" class="admin-user-list"></div>
       </div>
     </div>
+
+    <!-- Usuarios bloqueados con botón desplegable -->
+    <div class="admin-dropdown-section">
+      <button class="admin-dropdown-btn" onclick="Admin.toggleBlockedUsersDropdown()">
+        <span>🚫 Usuarios bloqueados</span>
+        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div id="admin-blocked-users-dropdown" class="admin-dropdown-content hidden">
+        <div id="admin-blocked-user-list" class="admin-user-list"></div>
+      </div>
+    </div>
     
     <!-- Archivos compartidos con botón desplegable -->
     <div class="admin-dropdown-section">
@@ -423,7 +434,7 @@
 <script src="/js/blocks.js?v=2"></script>
 <script src="/js/report-modal.js?v=1"></script>
 <script src="/js/chat.js?v=6"></script>
-<script src="/js/admin.js?v=18"></script>
+<script src="/js/admin.js?v=19"></script>
 <script src="/js/media-gallery.js?v=2"></script>
 <script src="/js/notifications.js?v=1"></script>
 <script src="/js/router.js?v=17"></script>

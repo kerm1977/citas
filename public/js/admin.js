@@ -5,11 +5,63 @@ const Admin = (() => {
   let _mediaFiles = [];
   let _currentFilter = 'all';
   let _allUsers = [];
+  let _blockedUsers = [];
 
   function _h() { return { 'Content-Type':'application/json', Authorization: 'Bearer ' + (window._session?.token||'') }; }
   function _isAdmin() {
     const r = window._session?.user?.role;
     return r === 'admin' || r === 'superadmin';
+  }
+
+  /* ── Multi-step Confirmation Modal ───────────────────────────────────────────── */
+  function _showConfirmModal(options) {
+    const { title, message, steps, onConfirm, onCancel } = options;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'report-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    
+    let currentStep = 0;
+    
+    const updateModal = () => {
+      const step = steps[currentStep];
+      overlay.innerHTML = `
+        <div class="glass-card" style="max-width:400px;padding:2rem;margin:1rem;border-radius:16px;">
+          <h3 style="margin:0 0 1rem 0;color:var(--text-main);font-size:1.2rem;">${title}</h3>
+          <p style="margin:0 0 1.5rem 0;color:var(--text-muted);line-height:1.5;">${message}</p>
+          <div style="background:rgba(255,255,255,0.05);padding:1rem;border-radius:8px;margin-bottom:1.5rem;border:1px solid var(--glass-border);">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+              <span style="background:var(--primary);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:bold;">${currentStep + 1}</span>
+              <span style="color:var(--text-main);font-weight:500;">Paso ${currentStep + 1} de ${steps.length}</span>
+            </div>
+            <p style="margin:0;color:var(--text-muted);font-size:0.9rem;">${step}</p>
+          </div>
+          <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+            <button class="btn btn-secondary" id="confirm-cancel" style="padding:0.6rem 1.2rem;border-radius:8px;">Cancelar</button>
+            <button class="btn btn-danger" id="confirm-next" style="padding:0.6rem 1.2rem;border-radius:8px;">${currentStep === steps.length - 1 ? 'Confirmar' : 'Continuar'}</button>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('confirm-cancel').onclick = () => {
+        overlay.remove();
+        if (onCancel) onCancel();
+      };
+      
+      document.getElementById('confirm-next').onclick = () => {
+        if (currentStep === steps.length - 1) {
+          overlay.remove();
+          if (onConfirm) onConfirm();
+        } else {
+          currentStep++;
+          updateModal();
+        }
+      };
+    };
+    
+    updateModal();
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); if (onCancel) onCancel(); } });
   }
 
   async function loadStats() {
@@ -76,6 +128,55 @@ const Admin = (() => {
     }
   }
 
+  function toggleBlockedUsersDropdown() {
+    const dropdown = document.getElementById('admin-blocked-users-dropdown');
+    const btn = document.querySelectorAll('.admin-dropdown-btn')[1];
+    if (dropdown) {
+      dropdown.classList.toggle('hidden');
+      btn.classList.toggle('open');
+      if (!dropdown.classList.contains('hidden')) {
+        loadBlockedUsers();
+      }
+    }
+  }
+
+  async function loadBlockedUsers() {
+    if (!_isAdmin()) return;
+    try {
+      const res  = await fetch('/api/admin/users', { headers: _h() });
+      const data = await res.json();
+      if (!data.ok) return;
+      _blockedUsers = (data.users || []).filter(u => u.is_blocked);
+      _renderBlockedUsers();
+    } catch (e) {
+      console.error('[Admin] Error loading blocked users:', e);
+    }
+  }
+
+  function _renderBlockedUsers() {
+    const el = document.getElementById('admin-blocked-user-list');
+    if (!el) return;
+    if (_blockedUsers.length === 0) {
+      el.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--text-muted);">No hay usuarios bloqueados</div>';
+      return;
+    }
+    el.innerHTML = _blockedUsers.map(u => `
+      <div class="admin-user-row">
+        <div class="au-info">
+          <div class="au-name">${_esc(u.name)}</div>
+          <div class="au-email">${_esc(u.email)}</div>
+        </div>
+        <div class="au-actions">
+          <button class="btn btn-sm" onclick="Admin.toggleBlock('${u.id}',false)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Desbloquear
+          </button>
+          <button class="btn btn-sm btn-danger-soft" onclick="Admin.deleteUser('${u.id}','${_esc(u.name)}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Eliminar
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
   function toggleReportsDropdown() {
     const dropdown = document.getElementById('admin-reports-dropdown');
     const btn = document.querySelectorAll('.admin-dropdown-btn')[2];
@@ -123,20 +224,75 @@ const Admin = (() => {
   }
 
   async function toggleBlock(id, block) {
-    const res  = await fetch(`/api/admin/users/${id}/block`, {
-      method: 'PATCH', headers: _h(), body: JSON.stringify({ blocked: block })
-    });
-    const data = await res.json();
-    if (data.ok) { Toast.show(block ? 'Usuario bloqueado' : 'Usuario desbloqueado', 'success'); loadUsers(); }
-    else Toast.show(data.msg || 'Error', 'error');
+    const user = _allUsers.find(u => u.id === id) || _blockedUsers.find(u => u.id === id);
+    const userName = user ? user.name : 'este usuario';
+    
+    if (block) {
+      _showConfirmModal({
+        title: 'Bloquear usuario',
+        message: `¿Estás seguro de bloquear a ${userName}?`,
+        steps: [
+          'Este usuario no podrá enviar ni recibir mensajes.',
+          '¿Estás seguro de que deseas continuar con el bloqueo?'
+        ],
+        onConfirm: async () => {
+          const res  = await fetch(`/api/admin/users/${id}/block`, {
+            method: 'PATCH', headers: _h(), body: JSON.stringify({ blocked: true })
+          });
+          const data = await res.json();
+          if (data.ok) { 
+            Toast.show('Usuario bloqueado', 'success'); 
+            loadUsers(); 
+            loadBlockedUsers();
+          }
+          else Toast.show(data.msg || 'Error', 'error');
+        }
+      });
+    } else {
+      _showConfirmModal({
+        title: 'Desbloquear usuario',
+        message: `¿Estás seguro de desbloquear a ${userName}?`,
+        steps: [
+          'Este usuario volverá a poder enviar y recibir mensajes.',
+          '¿Estás seguro de que deseas continuar con el desbloqueo?'
+        ],
+        onConfirm: async () => {
+          const res  = await fetch(`/api/admin/users/${id}/block`, {
+            method: 'PATCH', headers: _h(), body: JSON.stringify({ blocked: false })
+          });
+          const data = await res.json();
+          if (data.ok) { 
+            Toast.show('Usuario desbloqueado', 'success'); 
+            loadUsers(); 
+            loadBlockedUsers();
+          }
+          else Toast.show(data.msg || 'Error', 'error');
+        }
+      });
+    }
   }
 
   async function deleteUser(id, name) {
-    if (!confirm(`¿Eliminar a ${name}? Esta acción no se puede deshacer.`)) return;
-    const res  = await fetch(`/api/admin/users/${id}`, { method: 'DELETE', headers: _h() });
-    const data = await res.json();
-    if (data.ok) { Toast.show('Usuario eliminado', 'success'); loadUsers(); loadStats(); }
-    else Toast.show(data.msg || 'Error', 'error');
+    _showConfirmModal({
+      title: 'Eliminar usuario',
+      message: `¿Eliminar a ${name}? Esta acción no se puede deshacer.`,
+      steps: [
+        'Todos los mensajes y datos del usuario serán eliminados permanentemente.',
+        'Esta acción no se puede deshacer bajo ninguna circunstancia.',
+        '¿Estás completamente seguro de eliminar a este usuario?'
+      ],
+      onConfirm: async () => {
+        const res  = await fetch(`/api/admin/users/${id}`, { method: 'DELETE', headers: _h() });
+        const data = await res.json();
+        if (data.ok) { 
+          Toast.show('Usuario eliminado', 'success'); 
+          loadUsers(); 
+          loadStats();
+          loadBlockedUsers();
+        }
+        else Toast.show(data.msg || 'Error', 'error');
+      }
+    });
   }
 
   async function setRole(id, role) {
@@ -721,7 +877,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadPendingUsers, approveUser, rejectUser, openReviewChat, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleUsersDropdown, toggleBlockedUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadPendingUsers, approveUser, rejectUser, openReviewChat, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;
