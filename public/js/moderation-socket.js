@@ -47,14 +47,12 @@ window._ModSocket = (function () {
 
     /* Detectar cuando un usuario se conecta y mostrar modal si está pendiente */
     S.socket.on('user:online', (data) => {
-      console.log('[ModSocket] user:online event', { data, pendingUsers: S.pendingReviewUsers, currentUser: S.currentUser });
       if (S.currentUser?.role !== 'superadmin') return;
       const session = Auth?.loadSession?.();
       if (!session?.user?.id) return;
       /* Solo mostrar modal si el usuario se acaba de conectar (online: true) */
       if (!data.online) return;
       const pendingUser = S.pendingReviewUsers.find(u => u.id === data.userId);
-      console.log('[ModSocket] pendingUser found:', pendingUser);
       if (pendingUser) {
         window._ModModals.showNewUserAlert(pendingUser);
       }
@@ -132,7 +130,6 @@ window._ModSocket = (function () {
           /* Mostrar modal para usuarios pendientes que ya están online */
           const onlinePendingUsers = data.users.filter(u => u.online === 1);
           if (onlinePendingUsers.length > 0) {
-            console.log('[ModSocket] Found online pending users:', onlinePendingUsers);
             /* Mostrar modal para el primer usuario pendiente online */
             window._ModModals.showNewUserAlert(onlinePendingUsers[0]);
           }

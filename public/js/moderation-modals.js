@@ -126,19 +126,15 @@ window._ModModals = (function () {
   }
 
   function showNewUserAlert(userData) {
-    console.log('[ModModals] showNewUserAlert called', { userData, currentUser: S.currentUser, session: Auth?.loadSession?.() });
     /* Verificación triple: rol, sesión activa, y que no sea el propio usuario */
     if (S.currentUser?.role !== 'superadmin') {
-      console.log('[ModModals] Blocked: not superadmin');
       return;
     }
     const session = Auth?.loadSession?.();
     if (!session?.user?.id) {
-      console.log('[ModModals] Blocked: no session');
       return;
     }
     if (session.user.role !== 'superadmin') {
-      console.log('[ModModals] Blocked: session not superadmin');
       return;
     }
     _initNewUserAlert();
@@ -151,7 +147,6 @@ window._ModModals = (function () {
       return;
     }
     
-    console.log('[ModModals] Showing alert for:', userData.name);
     nameEl.textContent = userData.name;
     emailEl.textContent = userData.email;
     overlayEl.classList.remove('hidden');

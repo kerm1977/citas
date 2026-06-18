@@ -1,6 +1,4 @@
-﻿console.log('[ModerationSystem] File loading started...');
-
-/* +---------------------------------------------------------------------------+
+﻿/* +---------------------------------------------------------------------------+
  * ║  MODERATION.JS — COORDINADOR DELGADO — NO MODIFICAR                     ║
  * ║  Sub-módulos (cargar en orden):                                          ║
  * ║    1. moderation-state.js   → window._MS (estado compartido)            ║
@@ -36,7 +34,6 @@ const ModerationSystem = (() => {
     window._ModSocket._checkUserStatus().catch(e => console.error('[ModerationSystem] _checkUserStatus:', e));
     if (socket) window._ModSocket._setupSocketListeners();
 
-    console.log('[ModerationSystem] Initialized. user:', S.currentUser?.name, 'approved:', S.isApproved);
   }
 
   return {
@@ -55,4 +52,3 @@ const ModerationSystem = (() => {
 })();
 
 window.ModerationSystem = ModerationSystem;
-console.log('[ModerationSystem] Module loaded');
