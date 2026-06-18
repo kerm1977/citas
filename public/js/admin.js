@@ -231,6 +231,10 @@ const Admin = (() => {
                 </div>
               </div>
               <div class="pending-user-actions">
+                <button class="btn btn-sm btn-primary" onclick="Admin.openReviewChat('${u.id}', '${_esc(u.name)}', '${_esc(u.email)}', '${u.avatar || ''}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  Chatear para Verificar
+                </button>
                 <button class="btn btn-sm btn-success" onclick="Admin.approveUser('${u.id}', '${_esc(u.name)}')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   Aprobar
@@ -287,6 +291,24 @@ const Admin = (() => {
       }
     } catch (e) {
       Notifications.error('Error de red');
+    }
+  }
+
+  function openReviewChat(userId, name, email, avatar) {
+    // Cerrar el modal de usuarios pendientes
+    document.querySelector('.report-overlay')?.remove();
+    
+    // Usar el sistema de moderación existente para abrir el chat de revisión
+    if (window.ModerationSystem) {
+      // Agregar usuario a la lista de pendientes si no está
+      const S = window._MS;
+      if (!S.pendingReviewUsers.find(u => u.id === userId)) {
+        S.pendingReviewUsers.push({ id: userId, name, email, avatar });
+      }
+      // Mostrar el alerta de nuevo usuario que abrirá el chat
+      window.ModerationSystem.showNewUserAlert({ id: userId, name, email, avatar });
+    } else {
+      Notifications.error('Sistema de moderación no disponible');
     }
   }
 
@@ -694,7 +716,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadPendingUsers, approveUser, rejectUser, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadPendingUsers, approveUser, rejectUser, openReviewChat, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;
