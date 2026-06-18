@@ -298,42 +298,14 @@ const Admin = (() => {
     // Cerrar el modal de usuarios pendientes
     document.querySelector('.report-overlay')?.remove();
     
-    // Inicializar ModerationSystem si no está inicializado
-    if (window.ModerationSystem && window._MS && !window._MS.currentUser) {
-      const session = Auth?.loadSession?.();
-      if (session?.user) {
-        window._MS.currentUser = session.user;
-        window._MS.isApproved = session.user.role === 'superadmin' || session.user.is_approved === 1;
-        // Obtener socket si está disponible
-        if (window.ChatSocket?.getSocket) {
-          const socket = window.ChatSocket.getSocket();
-          if (socket) {
-            window._MS.socket = socket;
-            window._ModSocket._setupSocketListeners();
-          }
-        }
-      }
-    }
+    // Guardar datos del usuario para abrir el chat después de redirigir
+    sessionStorage.setItem('pendingReviewUser', JSON.stringify({ id: userId, name, email, avatar }));
     
-    // Usar el sistema de moderación para abrir el chat de revisión
-    if (window.ModerationSystem) {
-      const S = window._MS;
-      // Agregar usuario a la lista de pendientes si no está
-      if (!S.pendingReviewUsers.find(u => u.id === userId)) {
-        S.pendingReviewUsers.push({ id: userId, name, email, avatar });
-      }
-      // Forzar que el sistema reconozca al usuario como superadmin temporalmente
-      const originalRole = S.currentUser?.role;
-      if (!originalRole) {
-        const session = Auth?.loadSession?.();
-        if (session?.user) {
-          S.currentUser = session.user;
-        }
-      }
-      // Mostrar el alerta de nuevo usuario que abrirá el chat
-      window.ModerationSystem.showNewUserAlert({ id: userId, name, email, avatar });
+    // Redirigir a chat para asegurar que el socket esté inicializado
+    if (window.Router) {
+      Router.go('chat');
     } else {
-      Notifications.error('Sistema de moderación no disponible');
+      window.location.hash = '#chat';
     }
   }
 

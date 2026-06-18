@@ -75,6 +75,28 @@ const Chat = (() => {
         document.getElementById('approval-waiting-overlay')?.classList.add('hidden');
         document.getElementById('fallback-approval-overlay')?.remove();
       }
+      
+      /* Verificar si hay un usuario pendiente de revisión desde admin panel */
+      const pendingReviewUser = sessionStorage.getItem('pendingReviewUser');
+      if (pendingReviewUser && sessionUser?.role === 'superadmin') {
+        try {
+          const userData = JSON.parse(pendingReviewUser);
+          sessionStorage.removeItem('pendingReviewUser');
+          // Agregar a la lista de pendientes y abrir el chat
+          if (window._MS && !window._MS.pendingReviewUsers.find(u => u.id === userData.id)) {
+            window._MS.pendingReviewUsers.push(userData);
+          }
+          // Esperar un momento para que ModerationSystem esté completamente inicializado
+          setTimeout(() => {
+            if (window.ModerationSystem) {
+              window.ModerationSystem.showNewUserAlert(userData);
+            }
+          }, 500);
+        } catch (e) {
+          console.error('[Chat] Error parsing pendingReviewUser:', e);
+          sessionStorage.removeItem('pendingReviewUser');
+        }
+      }
     });
     ChatSocket.connect();
   }
