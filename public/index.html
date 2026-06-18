@@ -240,7 +240,14 @@
     </button>
     </div>
     <div id="admin-stats" class="admin-stats"></div>
-    
+
+    <div class="admin-actions-row">
+      <button class="btn" onclick="Admin.loadPendingUsers()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Verificar solicitudes de ingreso
+      </button>
+    </div>
+
     <!-- Usuarios registrados con botón desplegable -->
     <div class="admin-dropdown-section">
       <button class="admin-dropdown-btn" onclick="Admin.toggleUsersDropdown()">
@@ -416,7 +423,7 @@
 <script src="/js/blocks.js?v=2"></script>
 <script src="/js/report-modal.js?v=1"></script>
 <script src="/js/chat.js?v=5"></script>
-<script src="/js/admin.js?v=13"></script>
+<script src="/js/admin.js?v=14"></script>
 <script src="/js/media-gallery.js?v=2"></script>
 <script src="/js/notifications.js?v=1"></script>
 <script src="/js/router.js?v=15"></script>

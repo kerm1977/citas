@@ -186,6 +186,110 @@ const Admin = (() => {
     Notifications.success('Denuncias exportadas');
   }
 
+  async function loadPendingUsers() {
+    if (!_isAdmin()) return;
+    try {
+      const res = await fetch('/api/auth/pending-users', { headers: _h() });
+      const data = await res.json();
+      if (!data.ok) {
+        Notifications.error('Error al cargar usuarios pendientes');
+        return;
+      }
+      if (!data.users || data.users.length === 0) {
+        Notifications.info('No hay usuarios pendientes de aprobación');
+        return;
+      }
+      showPendingUsersModal(data.users);
+    } catch (e) {
+      console.error('[Admin] Error loading pending users:', e);
+      Notifications.error('Error de red');
+    }
+  }
+
+  function showPendingUsersModal(users) {
+    const ov = document.createElement('div');
+    ov.className = 'report-overlay';
+    ov.innerHTML = `
+      <div class="report-card glass-card" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+        <button class="report-close" onclick="this.closest('.report-overlay').remove()">×</button>
+        <h3 class="report-title">👥 Solicitudes de ingreso pendientes (${users.length})</h3>
+        <div class="pending-users-list">
+          ${users.map(u => `
+            <div class="pending-user-item">
+              <div class="pending-user-info">
+                <div class="pending-user-avatar">
+                  ${u.avatar ? `<img src="${u.avatar}" alt="Avatar" class="pending-user-avatar-img"/>` : '<div class="pending-user-avatar-placeholder">👤</div>'}
+                </div>
+                <div class="pending-user-details">
+                  <div class="pending-user-name">${_esc(u.name)}</div>
+                  <div class="pending-user-email">${_esc(u.email)}</div>
+                  <div class="pending-user-meta">
+                    ${u.phone ? `<span>📱 ${_esc(u.phone)}</span>` : ''}
+                    <span>📅 ${new Date(u.created_at).toLocaleString('es-MX')}</span>
+                    <span class="status-badge ${u.online ? 'online' : 'offline'}">${u.online ? '🟢 Online' : '⚫ Offline'}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pending-user-actions">
+                <button class="btn btn-sm btn-success" onclick="Admin.approveUser('${u.id}', '${_esc(u.name)}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Aprobar
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="Admin.rejectUser('${u.id}', '${_esc(u.name)}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  Rechazar
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  }
+
+  async function approveUser(userId, name) {
+    if (!confirm(`¿Aprobar al usuario "${name}"?`)) return;
+    try {
+      const res = await fetch('/api/auth/approve', {
+        method: 'POST',
+        headers: _h(),
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Notifications.success(`Usuario "${name}" aprobado`);
+        document.querySelector('.report-overlay')?.remove();
+        loadPendingUsers();
+      } else {
+        Notifications.error('Error: ' + (data.msg || 'No se pudo aprobar'));
+      }
+    } catch (e) {
+      Notifications.error('Error de red');
+    }
+  }
+
+  async function rejectUser(userId, name) {
+    if (!confirm(`¿Rechazar al usuario "${name}"? Esta acción es irreversible.`)) return;
+    try {
+      const res = await fetch('/api/auth/reject', {
+        method: 'POST',
+        headers: _h(),
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Notifications.success(`Usuario "${name}" rechazado`);
+        document.querySelector('.report-overlay')?.remove();
+        loadPendingUsers();
+      } else {
+        Notifications.error('Error: ' + (data.msg || 'No se pudo rechazar'));
+      }
+    } catch (e) {
+      Notifications.error('Error de red');
+    }
+  }
+
   async function loadMedia() {
     if (!_isAdmin()) return;
     try {
@@ -590,7 +694,7 @@ const Admin = (() => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   }
 
-  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
+  return { init, loadStats, loadUsers, toggleUsersDropdown, searchUsers, toggleBlock, deleteUser, setRole, exportUsers, exportReports, loadPendingUsers, approveUser, rejectUser, loadMedia, toggleMediaDropdown, filterMedia, showMediaContextMenu, openFileLocation, copyFileUrl, deleteFile, loadReports, toggleReportsDropdown, openReportDetail, blockTemp, deleteReportedUser, deleteReport, openMsgModal, loadInterfaceSettings, openRegisterModalEdit };
 })();
 
 window.Admin = Admin;
