@@ -96,6 +96,83 @@ function isGroupMember(groupId, userId) {
   return !!member;
 }
 
+/* Verificar si un usuario es creador de un grupo */
+function isGroupCreator(groupId, userId) {
+  const group = dbGet(
+    `SELECT created_by FROM groups WHERE id = ?`,
+    [groupId]
+  );
+  return group && group.created_by === userId;
+}
+
+/* Crear invitación para un grupo */
+function createGroupInvite(groupId, createdBy, expiresInHours = 24) {
+  const id = randomUUID();
+  const token = randomUUID().replace(/-/g, '').substring(0, 12);
+  const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString();
+  
+  dbRun(
+    `INSERT INTO group_invites (id, group_id, token, created_by, expires_at) VALUES (?, ?, ?, ?, ?)`,
+    [id, groupId, token, createdBy, expiresAt]
+  );
+  
+  return token;
+}
+
+/* Obtener invitación por token */
+function getGroupInviteByToken(token) {
+  return dbGet(`
+    SELECT gi.*, g.name as group_name, u.name as creator_name
+    FROM group_invites gi
+    INNER JOIN groups g ON gi.group_id = g.id
+    LEFT JOIN users u ON gi.created_by = u.id
+    WHERE gi.token = ? AND (gi.expires_at IS NULL OR gi.expires_at > datetime('now'))
+  `, [token]);
+}
+
+/* Aceptar invitación */
+function acceptGroupInvite(token, userId) {
+  const invite = getGroupInviteByToken(token);
+  if (!invite) return { success: false, msg: 'Invitación no encontrada o expirada' };
+  
+  // Verificar que el creador sea quien acepta (según requerimiento)
+  if (invite.created_by !== userId) {
+    return { success: false, msg: 'Solo el creador puede aceptar esta invitación' };
+  }
+  
+  // Verificar que no sea miembro ya
+  if (isGroupMember(invite.group_id, userId)) {
+    return { success: false, msg: 'Ya eres miembro de este grupo' };
+  }
+  
+  // Agregar al grupo
+  addGroupMember(invite.group_id, userId);
+  
+  // Marcar como aceptada
+  dbRun(
+    `UPDATE group_invites SET accepted_by = ?, accepted_at = datetime('now') WHERE id = ?`,
+    [userId, invite.id]
+  );
+  
+  return { success: true, groupId: invite.group_id };
+}
+
+/* Obtener invitaciones de un grupo */
+function getGroupInvites(groupId) {
+  return dbAll(`
+    SELECT gi.*, u.name as accepted_by_name
+    FROM group_invites gi
+    LEFT JOIN users u ON gi.accepted_by = u.id
+    WHERE gi.group_id = ?
+    ORDER BY gi.created_at DESC
+  `, [groupId]);
+}
+
+/* Eliminar invitación */
+function deleteGroupInvite(inviteId) {
+  dbRun(`DELETE FROM group_invites WHERE id = ?`, [inviteId]);
+}
+
 module.exports = {
   createGroup,
   getUserGroups,
@@ -104,5 +181,11 @@ module.exports = {
   removeGroupMember,
   getGroupById,
   searchUsersNotInGroup,
-  isGroupMember
+  isGroupMember,
+  isGroupCreator,
+  createGroupInvite,
+  getGroupInviteByToken,
+  acceptGroupInvite,
+  getGroupInvites,
+  deleteGroupInvite
 };

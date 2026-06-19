@@ -90,8 +90,292 @@ const Chat = (() => {
   }
 
   /* ── Open group chat ─────────────────────────────────────── */
-  function openGroup(groupId, groupName) {
-    Toast.show('Chat de grupo próximamente', 'info');
+  async function openGroup(groupId, groupName) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, { headers: ChatUtils.authHeaders() });
+      const data = await res.json();
+      if (!data.ok) {
+        Toast.show(data.msg || 'Error al cargar grupo', 'error');
+        return;
+      }
+
+      // Mostrar ventana de chat
+      document.getElementById('chat-empty')?.classList.add('hidden');
+      document.getElementById('chat-window')?.classList.remove('hidden');
+      document.getElementById('chat-sidebar')?.classList.add('mobile-hidden');
+
+      // Configurar header del chat
+      const header = document.querySelector('.chat-header');
+      if (header) {
+        header.innerHTML = `
+          <div style="display:flex;align-items:center;gap:0.8rem;">
+            <div style="width:40px;height:40px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;">
+              ${groupName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight:600;color:white;">${groupName}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">${data.members.length} miembros</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="icon-btn" onclick="Chat.showGroupMembers('${groupId}')" title="Miembros">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            </button>
+            <button class="icon-btn" onclick="Chat.showGroupInvites('${groupId}')" title="Invitaciones">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </button>
+          </div>
+        `;
+      }
+
+      // Limpiar mensajes anteriores
+      const messagesContainer = document.getElementById('chat-messages');
+      if (messagesContainer) {
+        messagesContainer.querySelectorAll('*').forEach(el => el.remove());
+      }
+
+      // Guardar grupo activo
+      ChatMessages.setActive({ id: groupId, name: groupName, isGroup: true });
+
+      // Cargar mensajes del grupo
+      await loadGroupMessages(groupId);
+
+    } catch (e) {
+      console.error('Error al abrir grupo:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Load group messages ───────────────────────────────── */
+  async function loadGroupMessages(groupId) {
+    try {
+      const res = await fetch(`/api/chat/messages?group_id=${groupId}`, { headers: ChatUtils.authHeaders() });
+      const data = await res.json();
+      if (data.ok && data.messages) {
+        for (const msg of data.messages) {
+          await ChatMessages.appendMessage(msg);
+        }
+        const c = document.getElementById('chat-messages');
+        c.scrollTop = c.scrollHeight;
+      }
+    } catch (e) {
+      console.error('Error al cargar mensajes del grupo:', e);
+    }
+  }
+
+  /* ── Show group members modal ──────────────────────────── */
+  async function showGroupMembers(groupId) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, { headers: ChatUtils.authHeaders() });
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const isCreator = data.group.created_by === window._session?.user?.id;
+      
+      let membersHtml = data.members.map(m => `
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;background:rgba(255,255,255,0.05);border-radius:0.6rem;margin-bottom:0.5rem;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:600;color:white;">
+            ${m.name.charAt(0).toUpperCase()}
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:500;color:white;">${m.name}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${m.online ? 'En línea' : 'Desconectado'}</div>
+          </div>
+          ${isCreator && m.id !== window._session?.user?.id ? `
+            <button onclick="Chat.removeGroupMember('${groupId}', '${m.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+              Eliminar
+            </button>
+          ` : ''}
+        </div>
+      `).join('');
+
+      const modalHtml = `
+        <div id="group-members-modal" class="modal-overlay">
+          <div class="modal-content glass-card">
+            <div class="modal-header">
+              <h3>Miembros del grupo</h3>
+              <button class="modal-close" onclick="document.getElementById('group-members-modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+              ${membersHtml}
+              ${isCreator ? `
+                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border);">
+                  <input id="add-member-search" type="search" class="form-control" placeholder="Buscar usuario para agregar..." />
+                  <div id="add-member-results" style="margin-top:0.5rem;"></div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      if (isCreator) {
+        const searchInput = document.getElementById('add-member-search');
+        searchInput.oninput = async (e) => {
+          const term = e.target.value.trim();
+          if (term.length >= 2) {
+            const searchRes = await fetch(`/api/groups/${groupId}/search?q=${encodeURIComponent(term)}`, { headers: ChatUtils.authHeaders() });
+            const searchData = await searchRes.json();
+            if (searchData.ok) {
+              const resultsHtml = searchData.users.map(u => `
+                <div onclick="Chat.addGroupMember('${groupId}', '${u.id}', '${u.name}')" style="padding:0.6rem;background:rgba(255,255,255,0.05);border-radius:0.4rem;margin-bottom:0.3rem;cursor:pointer;">
+                  ${u.name}
+                </div>
+              `).join('');
+              document.getElementById('add-member-results').innerHTML = resultsHtml;
+            }
+          } else {
+            document.getElementById('add-member-results').innerHTML = '';
+          }
+        };
+      }
+
+    } catch (e) {
+      console.error('Error al mostrar miembros:', e);
+    }
+  }
+
+  /* ── Add member to group ───────────────────────────────── */
+  async function addGroupMember(groupId, userId, userName) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...ChatUtils.authHeaders() },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show(`${userName} agregado al grupo`, 'success');
+        document.getElementById('group-members-modal')?.remove();
+        loadGroupMessages(groupId); // Recargar para actualizar
+      } else {
+        Toast.show(data.msg || 'Error al agregar miembro', 'error');
+      }
+    } catch (e) {
+      console.error('Error al agregar miembro:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Remove member from group ───────────────────────────── */
+  async function removeGroupMember(groupId, userId) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: ChatUtils.authHeaders()
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Miembro eliminado del grupo', 'success');
+        document.getElementById('group-members-modal')?.remove();
+        loadGroupMessages(groupId); // Recargar para actualizar
+      } else {
+        Toast.show(data.msg || 'Error al eliminar miembro', 'error');
+      }
+    } catch (e) {
+      console.error('Error al eliminar miembro:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Show group invites modal ───────────────────────────── */
+  async function showGroupInvites(groupId) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/invites`, { headers: ChatUtils.authHeaders() });
+      const data = await res.json();
+      
+      if (!data.ok) {
+        Toast.show(data.msg || 'Error al cargar invitaciones', 'error');
+        return;
+      }
+
+      let invitesHtml = data.invites.map(inv => `
+        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;background:rgba(255,255,255,0.05);border-radius:0.6rem;margin-bottom:0.5rem;">
+          <div style="flex:1;">
+            <div style="font-family:monospace;font-size:0.85rem;color:white;">${window.location.origin}/invite/${inv.token}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${inv.accepted_by ? `Aceptada por ${inv.accepted_by_name}` : 'Pendiente'}</div>
+          </div>
+          <button onclick="Chat.copyInviteLink('${inv.token}')" style="background:rgba(102,126,234,0.2);border:1px solid rgba(102,126,234,0.4);color:#818cf8;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+            Copiar
+          </button>
+          <button onclick="Chat.deleteGroupInvite('${groupId}', '${inv.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+            Eliminar
+          </button>
+        </div>
+      `).join('');
+
+      const modalHtml = `
+        <div id="group-invites-modal" class="modal-overlay">
+          <div class="modal-content glass-card">
+            <div class="modal-header">
+              <h3>Invitaciones del grupo</h3>
+              <button class="modal-close" onclick="document.getElementById('group-invites-modal').remove()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <button onclick="Chat.createGroupInvite('${groupId}')" class="btn btn-full" style="margin-bottom:1rem;">
+                Crear nueva invitación
+              </button>
+              ${invitesHtml || '<p style="color:var(--text-muted);text-align:center;">No hay invitaciones</p>'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    } catch (e) {
+      console.error('Error al mostrar invitaciones:', e);
+    }
+  }
+
+  /* ── Create group invite ───────────────────────────────── */
+  async function createGroupInvite(groupId) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/invites`, {
+        method: 'POST',
+        headers: ChatUtils.authHeaders()
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Invitación creada', 'success');
+        showGroupInvites(groupId); // Recargar modal
+      } else {
+        Toast.show(data.msg || 'Error al crear invitación', 'error');
+      }
+    } catch (e) {
+      console.error('Error al crear invitación:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Copy invite link ───────────────────────────────────── */
+  function copyInviteLink(token) {
+    const link = `${window.location.origin}/invite/${token}`;
+    navigator.clipboard.writeText(link).then(() => {
+      Toast.show('Link copiado al portapapeles', 'success');
+    });
+  }
+
+  /* ── Delete group invite ───────────────────────────────── */
+  async function deleteGroupInvite(groupId, inviteId) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/invites/${inviteId}`, {
+        method: 'DELETE',
+        headers: ChatUtils.authHeaders()
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Invitación eliminada', 'success');
+        showGroupInvites(groupId); // Recargar modal
+      } else {
+        Toast.show(data.msg || 'Error al eliminar invitación', 'error');
+      }
+    } catch (e) {
+      console.error('Error al eliminar invitación:', e);
+      Toast.show('Error de red', 'error');
+    }
   }
 
   /* ── Socket connection ────────────────────────────────────── */
@@ -242,6 +526,13 @@ const Chat = (() => {
     initSearch,
     switchTab,
     openGroup,
+    showGroupMembers,
+    addGroupMember,
+    removeGroupMember,
+    showGroupInvites,
+    createGroupInvite,
+    copyInviteLink,
+    deleteGroupInvite,
     closeChat,
     setReplyTo: ChatReply.setReplyTo,
     clearReplyTo: ChatReply.clearReplyTo,

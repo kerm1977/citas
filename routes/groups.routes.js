@@ -106,4 +106,65 @@ router.get('/:id/search', authMiddleware.authRequired, (req, res) => {
   }
 });
 
+/* Crear invitación para el grupo */
+router.post('/:id/invites', authMiddleware.authRequired, (req, res) => {
+  try {
+    // Verificar que el usuario es creador del grupo
+    if (!q.isGroupCreator(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede crear invitaciones' });
+    }
+    const token = q.createGroupInvite(req.params.id, req.user.id);
+    const inviteLink = `${req.protocol}://${req.get('host')}/invite/${token}`;
+    res.json({ ok: true, token, inviteLink });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al crear invitación' });
+  }
+});
+
+/* Obtener invitaciones del grupo */
+router.get('/:id/invites', authMiddleware.authRequired, (req, res) => {
+  try {
+    // Verificar que el usuario es creador del grupo
+    if (!q.isGroupCreator(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede ver invitaciones' });
+    }
+    const invites = q.getGroupInvites(req.params.id);
+    res.json({ ok: true, invites });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al obtener invitaciones' });
+  }
+});
+
+/* Eliminar invitación */
+router.delete('/:id/invites/:inviteId', authMiddleware.authRequired, (req, res) => {
+  try {
+    // Verificar que el usuario es creador del grupo
+    if (!q.isGroupCreator(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede eliminar invitaciones' });
+    }
+    q.deleteGroupInvite(req.params.inviteId);
+    res.json({ ok: true, msg: 'Invitación eliminada' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al eliminar invitación' });
+  }
+});
+
+/* Aceptar invitación por token */
+router.post('/accept-invite/:token', authMiddleware.authRequired, (req, res) => {
+  try {
+    const result = q.acceptGroupInvite(req.params.token, req.user.id);
+    if (result.success) {
+      res.json({ ok: true, groupId: result.groupId });
+    } else {
+      res.json({ ok: false, msg: result.msg });
+    }
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al aceptar invitación' });
+  }
+});
+
 module.exports = router;

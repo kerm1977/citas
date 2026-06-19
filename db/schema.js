@@ -54,6 +54,7 @@ async function initDB() {
       room        TEXT NOT NULL,
       sender_id   TEXT NOT NULL,
       receiver_id TEXT,
+      group_id    TEXT,
       type        TEXT DEFAULT 'text',
       content     TEXT NOT NULL,
       iv          TEXT,
@@ -79,8 +80,15 @@ async function initDB() {
     /* La columna ya existe, ignorar error */
   }
 
+  try {
+    dbExec(`ALTER TABLE messages ADD COLUMN group_id TEXT`);
+  } catch (e) {
+    /* La columna ya existe, ignorar error */
+  }
+
   dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_room   ON messages(room)`);
   dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_sender ON messages(sender_id)`);
+  dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_group  ON messages(group_id)`);
 
   dbExec(`
     CREATE TABLE IF NOT EXISTS superuser_contacts (
@@ -151,6 +159,25 @@ async function initDB() {
 
   dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id)`);
   dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)`);
+
+  dbExec(`
+    CREATE TABLE IF NOT EXISTS group_invites (
+      id          TEXT PRIMARY KEY,
+      group_id    TEXT NOT NULL,
+      token       TEXT UNIQUE NOT NULL,
+      created_by  TEXT NOT NULL,
+      accepted_by TEXT,
+      accepted_at TEXT,
+      expires_at  TEXT,
+      created_at  TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+      FOREIGN KEY (created_by) REFERENCES users(id),
+      FOREIGN KEY (accepted_by) REFERENCES users(id)
+    )
+  `);
+
+  dbExec(`CREATE INDEX IF NOT EXISTS idx_group_invites_token ON group_invites(token)`);
+  dbExec(`CREATE INDEX IF NOT EXISTS idx_group_invites_group ON group_invites(group_id)`);
 
   await _seedSuperusers();
   console.log('✅  Database initialised');

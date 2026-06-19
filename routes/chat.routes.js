@@ -75,6 +75,17 @@ module.exports = (io) => {
     res.json({ ok: true, messages: msgs });
   });
 
+  router.get('/messages', authRequired, (req, res) => {
+    const { group_id } = req.query;
+    if (!group_id) {
+      return res.json({ ok: false, msg: 'group_id requerido' });
+    }
+    const limit  = parseInt(req.query.limit)  || 50;
+    const offset = parseInt(req.query.offset) || 0;
+    const msgs   = q.getGroupMessages(group_id, limit, offset);
+    res.json({ ok: true, messages: msgs });
+  });
+
   router.post('/message', authRequired, decryptBody, (req, res) => {
     const { room, receiverId, type, content, iv } = req.body;
     if (!room || !content)
