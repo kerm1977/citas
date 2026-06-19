@@ -37,6 +37,7 @@ const { router: adminRoutes, publicRouter } = require('./routes/admin.routes');
 const backupRoutes  = require('./routes/backup.routes');
 const reportsRoutes = require('./routes/reports.routes');
 const blocksRoutes  = require('./routes/blocks.routes');
+const groupsRoutes  = require('./routes/groups.routes');
 const { socketHandler } = require('./socket/socket.handler');
 
 const app    = express();
@@ -71,6 +72,7 @@ app.use('/api/public',  publicRouter);
 app.use('/api/backup',  backupRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/blocks',  blocksRoutes);
+app.use('/api/groups',  groupsRoutes);
 
 app.get('*', (_req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html'))

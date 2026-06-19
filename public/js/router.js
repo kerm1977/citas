@@ -51,6 +51,7 @@ const Router = (() => {
     if (route === 'register') Auth.initRegisterForm();
     if (route === 'recover')  Auth.initRecoverForm();
     if (route === 'edit-profile') initEditProfile();
+    if (route === 'groups')   Groups.init();
     if (route === 'chat') {
       /* Reset mobile sidebar state when entering chat */
       document.getElementById('chat-sidebar')?.classList.remove('mobile-hidden');

@@ -127,6 +127,31 @@ async function initDB() {
     )
   `);
 
+  dbExec(`
+    CREATE TABLE IF NOT EXISTS groups (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL,
+      created_by  TEXT NOT NULL,
+      created_at  TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    )
+  `);
+
+  dbExec(`
+    CREATE TABLE IF NOT EXISTS group_members (
+      id         TEXT PRIMARY KEY,
+      group_id   TEXT NOT NULL,
+      user_id    TEXT NOT NULL,
+      joined_at  TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(group_id, user_id)
+    )
+  `);
+
+  dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id)`);
+  dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)`);
+
   await _seedSuperusers();
   console.log('✅  Database initialised');
 }
