@@ -32,6 +32,68 @@ const Chat = (() => {
     });
   }
 
+  /* ── Switch between users and groups tabs ─────────────────── */
+  async function switchTab(tab) {
+    const tabUsers = document.getElementById('tab-users');
+    const tabGroups = document.getElementById('tab-groups');
+    const userList = document.getElementById('user-list');
+    const groupList = document.getElementById('group-list');
+
+    if (tab === 'users') {
+      tabUsers.classList.add('active');
+      tabGroups.classList.remove('active');
+      userList.classList.remove('hidden');
+      groupList.classList.add('hidden');
+    } else if (tab === 'groups') {
+      tabUsers.classList.remove('active');
+      tabGroups.classList.add('active');
+      userList.classList.add('hidden');
+      groupList.classList.remove('hidden');
+      await loadGroups();
+    }
+  }
+
+  /* ── Load groups ──────────────────────────────────────────── */
+  async function loadGroups() {
+    try {
+      const res = await fetch('/api/groups', { headers: ChatUtils.authHeaders() });
+      const data = await res.json();
+      if (data.ok) {
+        renderGroupList(data.groups);
+      }
+    } catch (e) {
+      console.error('Error al cargar grupos:', e);
+    }
+  }
+
+  /* ── Render group list ───────────────────────────────────── */
+  function renderGroupList(groups) {
+    const container = document.getElementById('group-list');
+    if (!container) return;
+
+    if (groups.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem;">No tienes grupos aún. ¡Crea uno nuevo!</p>';
+      return;
+    }
+
+    container.innerHTML = groups.map(g => `
+      <div class="user-list-item" onclick="Chat.openGroup('${g.id}', '${g.name}')" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;cursor:pointer;transition:background .15s;position:relative;">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;flex-shrink:0;">
+          ${g.name.charAt(0).toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.name}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);">${g.member_count} miembros</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── Open group chat ─────────────────────────────────────── */
+  function openGroup(groupId, groupName) {
+    Toast.show('Chat de grupo próximamente', 'info');
+  }
+
   /* ── Socket connection ────────────────────────────────────── */
   function connect() {
     ChatSocket.onMessage(_onMessage);
@@ -178,6 +240,8 @@ const Chat = (() => {
     disconnect,
     loadUsers,
     initSearch,
+    switchTab,
+    openGroup,
     closeChat,
     setReplyTo: ChatReply.setReplyTo,
     clearReplyTo: ChatReply.clearReplyTo,
