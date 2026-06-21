@@ -96,6 +96,40 @@ module.exports = (io) => {
     res.json({ ok: true, id });
   });
 
+  router.post('/messages', authRequired, (req, res) => {
+    const { groupId, type, content, replyTo } = req.body;
+    if (!groupId || !content)
+      return res.json({ ok: false, msg: 'Datos incompletos' });
+    
+    const id = q.saveMessage({
+      room: `group_${groupId}`,
+      senderId: req.user.id,
+      groupId,
+      type: type || 'text',
+      content,
+      iv: null,
+      replyTo: replyTo || null
+    });
+    
+    const user = q.getUserById(req.user.id);
+    const message = {
+      id,
+      room: `group_${groupId}`,
+      group_id: groupId,
+      sender_id: req.user.id,
+      type: type || 'text',
+      content,
+      iv: null,
+      reply_to: replyTo || null,
+      sender_name: user?.name,
+      sender_avatar: user?.avatar,
+      sender_role: user?.role,
+      created_at: new Date().toISOString()
+    };
+    
+    res.json({ ok: true, message });
+  });
+
   router.post('/upload', authRequired, upload.single('file'), (req, res) => {
     if (!req.file) return res.json({ ok: false, msg: 'Sin archivo' });
     const mime = req.file.mimetype;

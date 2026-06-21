@@ -47,7 +47,7 @@ const ChatMessages = (() => {
   }
 
   /* ═════════════════════════════════════════════════════════════════════════════
-  /* ⚠️ sendGroupText: enviar mensaje de grupo sin encriptar (por ahora) */
+  /* ⚠️ sendGroupText: enviar mensaje de grupo vía API REST (más confiable) */
   async function sendGroupText(groupId, replyTo = null) {
     const inp = document.getElementById('msg-input');
     const text = inp.value.trim();
@@ -61,9 +61,26 @@ const ChatMessages = (() => {
       return;
     }
     
-    console.log('[ChatMessages] Enviando mensaje de grupo:', { groupId, text, replyTo });
-    ChatSocket.emit('chat:message', { groupId, type: 'text', content: text, iv: null, reply_to: replyTo });
-    SoundEffects?.playSend();
+    try {
+      const res = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...ChatUtils.authHeaders() },
+        body: JSON.stringify({ groupId, type: 'text', content: text, replyTo })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        // Mostrar el mensaje inmediatamente
+        await appendMessage(data.message);
+        SoundEffects?.playSend();
+      } else {
+        Toast.show(data.msg || 'Error al enviar mensaje', 'error');
+        inp.value = text; // Restaurar texto
+      }
+    } catch (e) {
+      console.error('Error al enviar mensaje de grupo:', e);
+      Toast.show('Error de red', 'error');
+      inp.value = text; // Restaurar texto
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════════════════════
@@ -71,6 +88,10 @@ const ChatMessages = (() => {
   async function sendFile(e, room, receiverId) {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    const active = getActive();
+    const isGroup = active && active.isGroup;
+    
     const fd = new FormData();
     fd.append('file', file);
     const res = await fetch('/api/chat/upload', { method: 'POST', headers: ChatUtils.authHeaders(), body: fd });
@@ -79,7 +100,29 @@ const ChatMessages = (() => {
       Toast.show('Error al subir archivo', 'error');
       return;
     }
-    ChatSocket.emit('chat:message', { room, receiverId, type: data.type, content: data.url });
+    
+    if (isGroup) {
+      // Enviar archivo a grupo vía API
+      try {
+        const msgRes = await fetch('/api/chat/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...ChatUtils.authHeaders() },
+          body: JSON.stringify({ groupId: active.id, type: data.type, content: data.url })
+        });
+        const msgData = await msgRes.json();
+        if (msgData.ok) {
+          await appendMessage(msgData.message);
+          SoundEffects?.playSend();
+        } else {
+          Toast.show(msgData.msg || 'Error al enviar archivo', 'error');
+        }
+      } catch (err) {
+        console.error('Error al enviar archivo de grupo:', err);
+        Toast.show('Error de red', 'error');
+      }
+    } else {
+      ChatSocket.emit('chat:message', { room, receiverId, type: data.type, content: data.url });
+    }
     e.target.value = '';
   }
 

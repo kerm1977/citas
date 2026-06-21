@@ -27,6 +27,38 @@
 'use strict';
 
 const ChatUI = (() => {
+  function initForm(room, userId) {
+    const form = document.getElementById('chat-form');
+    console.log('[ChatUI] Formulario encontrado:', form);
+    form.onsubmit = (e) => {
+      console.log('[ChatUI] onsubmit disparado');
+      e.preventDefault();
+      const replyTo = ChatReply.getReplyTo();
+      const replyToId = replyTo ? replyTo.msgId : null;
+      
+      // Verificar si estamos en un grupo
+      const active = ChatMessages.getActive();
+      console.log('[ChatUI] Formulario enviado, active:', active);
+      if (active && active.isGroup) {
+        console.log('[ChatUI] Enviando mensaje de grupo, groupId:', active.id);
+        ChatMessages.sendGroupText(active.id, replyToId);
+      } else {
+        console.log('[ChatUI] Enviando mensaje normal, room:', room, 'userId:', userId);
+        ChatMessages.sendText(room, userId, replyToId);
+      }
+      ChatReply.clearReplyTo();
+    };
+
+    const inp = document.getElementById('msg-input');
+    const _typing = AntiFreeze.debounce(() => ChatSocket.emit('chat:typing', { room, typing: false }), 2000);
+    inp.oninput = () => {
+      ChatSocket.emit('chat:typing', { room, typing: true });
+      _typing();
+    };
+
+    document.getElementById('file-input').onchange = (e) => ChatMessages.sendFile(e, room, userId);
+  }
+
   async function openChat(userId) {
     let u = ChatUsers.getUserById(userId);
 
@@ -121,46 +153,7 @@ const ChatUI = (() => {
       container._scrollObserver = null;
     }
 
-    /* ═════════════════════════════════════════════════════════════════════════════
-     *  ⚠️  CRÍTICO — ENVÍO DE RESPUESTA — NO MODIFICAR  ⚠️
-     * ─────────────────────────────────────────────────────────────────────────────────
-     *  El formulario envía el replyToId (solo msgId) al enviar mensaje.
-     *
-     *  REGLAS QUE DEBEN MANTENERSE SIEMPRE:
-     *  1. Obtener replyTo de ChatReply.getReplyTo()
-     *  2. Extraer solo replyTo.msgId (no el objeto completo)
-     *  3. Pasar replyToId a sendText
-     *  4. Limpiar replyTo después de enviar
-     * ═════════════════════════════════════════════════════════════════════════════ */
-    const form = document.getElementById('chat-form');
-    console.log('[ChatUI] Formulario encontrado:', form);
-    form.onsubmit = (e) => {
-      console.log('[ChatUI] onsubmit disparado');
-      e.preventDefault();
-      const replyTo = ChatReply.getReplyTo();
-      const replyToId = replyTo ? replyTo.msgId : null;
-      
-      // Verificar si estamos en un grupo
-      const active = ChatMessages.getActive();
-      console.log('[ChatUI] Formulario enviado, active:', active);
-      if (active && active.isGroup) {
-        console.log('[ChatUI] Enviando mensaje de grupo, groupId:', active.id);
-        ChatMessages.sendGroupText(active.id, replyToId);
-      } else {
-        console.log('[ChatUI] Enviando mensaje normal, room:', room, 'userId:', userId);
-        ChatMessages.sendText(room, userId, replyToId);
-      }
-      ChatReply.clearReplyTo();
-    };
-
-    const inp = document.getElementById('msg-input');
-    const _typing = AntiFreeze.debounce(() => ChatSocket.emit('chat:typing', { room, typing: false }), 2000);
-    inp.oninput = () => {
-      ChatSocket.emit('chat:typing', { room, typing: true });
-      _typing();
-    };
-
-    document.getElementById('file-input').onchange = (e) => ChatMessages.sendFile(e, room, userId);
+    initForm(room, userId);
   }
 
   function onTyping({ userId, name, typing }) {
@@ -223,6 +216,6 @@ const ChatUI = (() => {
     }
   }
 
-  return { openChat, onTyping, onDelete, onRead, onOnline, updateCurrentUserName };
+  return { openChat, initForm, onTyping, onDelete, onRead, onOnline, updateCurrentUserName };
 })();
 window.ChatUI = ChatUI;

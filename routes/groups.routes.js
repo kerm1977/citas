@@ -43,11 +43,11 @@ router.get('/:id', authMiddleware.authRequired, (req, res) => {
     if (!group) {
       return res.json({ ok: false, msg: 'Grupo no encontrado' });
     }
-    // Verificar que el usuario es miembro
-    if (!q.isGroupMember(req.params.id, req.user.id)) {
+    // Los superusuarios pueden ver grupos sin ser miembros
+    if (!q.isGroupMember(req.params.id, req.user.id) && req.user.role !== 'superadmin') {
       return res.json({ ok: false, msg: 'No eres miembro de este grupo' });
     }
-    const members = q.getGroupMembers(req.params.id);
+    const members = q.getGroupMembers(req.params.id, req.user.id);
     res.json({ ok: true, group, members });
   } catch (e) {
     console.error(e);

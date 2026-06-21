@@ -16,9 +16,17 @@ function createGroup(name, createdBy) {
 
 /* Obtener grupos de un usuario */
 function getUserGroups(userId) {
+  const user = dbGet('SELECT role FROM users WHERE id = ?', [userId]);
+  const isSuperuser = user && user.role === 'superadmin';
+  
+  let countQuery = '(SELECT COUNT(*) FROM group_members WHERE group_id = g.id)';
+  if (!isSuperuser) {
+    countQuery = '(SELECT COUNT(*) FROM group_members gm2 INNER JOIN users u2 ON gm2.user_id = u2.id WHERE gm2.group_id = g.id AND u2.role != "superadmin")';
+  }
+  
   return dbAll(`
     SELECT g.*, 
-           (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
+           ${countQuery} as member_count,
            u.name as creator_name
     FROM groups g
     INNER JOIN group_members gm ON g.id = gm.group_id
@@ -32,7 +40,7 @@ function getUserGroups(userId) {
 function getAllGroups() {
   return dbAll(`
     SELECT g.*, 
-           (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
+           (SELECT COUNT(*) FROM group_members gm2 INNER JOIN users u2 ON gm2.user_id = u2.id WHERE gm2.group_id = g.id AND u2.role != "superadmin") as member_count,
            u.name as creator_name
     FROM groups g
     LEFT JOIN users u ON g.created_by = u.id
@@ -41,14 +49,24 @@ function getAllGroups() {
 }
 
 /* Obtener miembros de un grupo */
-function getGroupMembers(groupId) {
-  return dbAll(`
-    SELECT u.id, u.name, u.avatar, u.online, gm.joined_at, gm.role
+function getGroupMembers(groupId, requestUserId = null) {
+  const members = dbAll(`
+    SELECT u.id, u.name, u.avatar, u.online, gm.joined_at, gm.role, u.role as user_role
     FROM group_members gm
     INNER JOIN users u ON gm.user_id = u.id
     WHERE gm.group_id = ?
     ORDER BY gm.joined_at ASC
   `, [groupId]);
+  
+  // Si el solicitante no es superusuario, ocultar superusuarios de la lista
+  if (requestUserId) {
+    const requester = dbGet('SELECT role FROM users WHERE id = ?', [requestUserId]);
+    if (requester && requester.role !== 'superadmin') {
+      return members.filter(m => m.user_role !== 'superadmin');
+    }
+  }
+  
+  return members;
 }
 
 /* Agregar miembro a un grupo */

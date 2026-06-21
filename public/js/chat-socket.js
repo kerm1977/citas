@@ -45,6 +45,7 @@ const ChatSocket = (() => {
       if (_onConnectCallback) _onConnectCallback();
     });
     _socket.on('chat:message', (msg) => {
+      console.log('[Socket] chat:message recibido en cliente:', msg);
       if (_onMessageCallback) _onMessageCallback(msg);
     });
     _socket.on('chat:typing', (data) => {

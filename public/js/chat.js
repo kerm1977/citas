@@ -108,6 +108,8 @@ const Chat = (() => {
         return;
       }
 
+      // Superusuarios en modo invisible no ven el mensaje de no ser miembro
+
       // Mostrar ventana de chat
       document.getElementById('chat-empty')?.classList.add('hidden');
       document.getElementById('chat-window')?.classList.remove('hidden');
@@ -149,6 +151,11 @@ const Chat = (() => {
       ChatMessages.setActive({ id: groupId, name: groupName, isGroup: true, isSuperuser, isMember });
       console.log('[Chat] Grupo activo establecido:', { id: groupId, name: groupName, isGroup: true, isSuperuser, isMember });
 
+      // Inicializar formulario para grupos
+      if (isMember) {
+        ChatUI.initForm(`group_${groupId}`, null);
+      }
+
       // Cargar mensajes del grupo
       await loadGroupMessages(groupId);
 
@@ -163,6 +170,7 @@ const Chat = (() => {
     try {
       const res = await fetch(`/api/chat/messages?group_id=${groupId}`, { headers: ChatUtils.authHeaders() });
       const data = await res.json();
+      console.log('[Chat] Mensajes del grupo cargados:', data);
       if (data.ok && data.messages) {
         for (const msg of data.messages) {
           await ChatMessages.appendMessage(msg);
