@@ -56,9 +56,9 @@ router.post('/:id/members', authMiddleware.authRequired, (req, res) => {
     if (!userId) {
       return res.json({ ok: false, msg: 'ID de usuario requerido' });
     }
-    // Verificar que el usuario actual es miembro
-    if (!q.isGroupMember(req.params.id, req.user.id)) {
-      return res.json({ ok: false, msg: 'No eres miembro de este grupo' });
+    // Verificar que el usuario actual es administrador o creador
+    if (!q.isGroupAdmin(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo los administradores pueden agregar miembros' });
     }
     const added = q.addGroupMember(req.params.id, userId);
     if (added) {
@@ -75,15 +75,34 @@ router.post('/:id/members', authMiddleware.authRequired, (req, res) => {
 /* Eliminar miembro de un grupo */
 router.delete('/:id/members/:userId', authMiddleware.authRequired, (req, res) => {
   try {
-    // Verificar que el usuario actual es miembro
-    if (!q.isGroupMember(req.params.id, req.user.id)) {
-      return res.json({ ok: false, msg: 'No eres miembro de este grupo' });
+    // Verificar que el usuario actual es administrador o creador
+    if (!q.isGroupAdmin(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo los administradores pueden eliminar miembros' });
     }
     q.removeGroupMember(req.params.id, req.params.userId);
     res.json({ ok: true, msg: 'Miembro eliminado' });
   } catch (e) {
     console.error(e);
     res.json({ ok: false, msg: 'Error al eliminar miembro' });
+  }
+});
+
+/* Cambiar rol de miembro */
+router.put('/:id/members/:userId/role', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!role || !['member', 'admin'].includes(role)) {
+      return res.json({ ok: false, msg: 'Rol inválido' });
+    }
+    // Verificar que el usuario actual es creador
+    if (!q.isGroupCreator(req.params.id, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede cambiar roles' });
+    }
+    q.updateGroupMemberRole(req.params.id, req.params.userId, role);
+    res.json({ ok: true, msg: 'Rol actualizado' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al actualizar rol' });
   }
 });
 

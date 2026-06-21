@@ -31,7 +31,7 @@ function getUserGroups(userId) {
 /* Obtener miembros de un grupo */
 function getGroupMembers(groupId) {
   return dbAll(`
-    SELECT u.id, u.name, u.avatar, u.online, gm.joined_at
+    SELECT u.id, u.name, u.avatar, u.online, gm.joined_at, gm.role
     FROM group_members gm
     INNER JOIN users u ON gm.user_id = u.id
     WHERE gm.group_id = ?
@@ -40,12 +40,12 @@ function getGroupMembers(groupId) {
 }
 
 /* Agregar miembro a un grupo */
-function addGroupMember(groupId, userId) {
+function addGroupMember(groupId, userId, role = 'member') {
   const id = randomUUID();
   try {
     dbRun(
-      `INSERT INTO group_members (id, group_id, user_id) VALUES (?, ?, ?)`,
-      [id, groupId, userId]
+      `INSERT INTO group_members (id, group_id, user_id, role) VALUES (?, ?, ?, ?)`,
+      [id, groupId, userId, role]
     );
     return true;
   } catch (e) {
@@ -103,6 +103,23 @@ function isGroupCreator(groupId, userId) {
     [groupId]
   );
   return group && group.created_by === userId;
+}
+
+/* Verificar si un usuario es administrador de un grupo */
+function isGroupAdmin(groupId, userId) {
+  const member = dbGet(
+    `SELECT role FROM group_members WHERE group_id = ? AND user_id = ?`,
+    [groupId, userId]
+  );
+  return member && (member.role === 'admin' || member.role === 'creator');
+}
+
+/* Cambiar rol de un miembro */
+function updateGroupMemberRole(groupId, userId, role) {
+  dbRun(
+    `UPDATE group_members SET role = ? WHERE group_id = ? AND user_id = ?`,
+    [role, groupId, userId]
+  );
 }
 
 /* Crear invitación para un grupo */
@@ -183,6 +200,8 @@ module.exports = {
   searchUsersNotInGroup,
   isGroupMember,
   isGroupCreator,
+  isGroupAdmin,
+  updateGroupMemberRole,
   createGroupInvite,
   getGroupInviteByToken,
   acceptGroupInvite,

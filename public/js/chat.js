@@ -171,23 +171,36 @@ const Chat = (() => {
       if (!data.ok) return;
 
       const isCreator = data.group.created_by === window._session?.user?.id;
+      const isAdmin = isCreator || data.members.find(m => m.id === window._session?.user?.id && m.role === 'admin');
       
-      let membersHtml = data.members.map(m => `
+      let membersHtml = data.members.map(m => {
+        const roleLabel = m.role === 'admin' ? 'Admin' : m.role === 'creator' ? 'Creador' : 'Miembro';
+        const roleColor = m.role === 'admin' ? '#818cf8' : m.role === 'creator' ? '#fbbf24' : 'var(--text-muted)';
+        
+        return `
         <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem;background:rgba(255,255,255,0.05);border-radius:0.6rem;margin-bottom:0.5rem;">
           <div style="width:36px;height:36px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:600;color:white;">
             ${m.name.charAt(0).toUpperCase()}
           </div>
           <div style="flex:1;">
             <div style="font-weight:500;color:white;">${m.name}</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">${m.online ? 'En línea' : 'Desconectado'}</div>
+            <div style="font-size:0.75rem;color:${roleColor};">${roleLabel}</div>
           </div>
           ${isCreator && m.id !== window._session?.user?.id ? `
+            <select onchange="Chat.changeMemberRole('${groupId}', '${m.id}', this.value)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:0.3rem 0.5rem;border-radius:0.4rem;font-size:0.8rem;cursor:pointer;">
+              <option value="member" ${m.role === 'member' ? 'selected' : ''}>Miembro</option>
+              <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+            <button onclick="Chat.removeGroupMember('${groupId}', '${m.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+              Eliminar
+            </button>
+          ` : isAdmin && m.id !== window._session?.user?.id && m.role !== 'admin' ? `
             <button onclick="Chat.removeGroupMember('${groupId}', '${m.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
               Eliminar
             </button>
           ` : ''}
         </div>
-      `).join('');
+      `}).join('');
 
       const modalHtml = `
         <div id="group-members-modal" class="modal-overlay">
@@ -198,7 +211,7 @@ const Chat = (() => {
             </div>
             <div class="modal-body">
               ${membersHtml}
-              ${isCreator ? `
+              ${isAdmin ? `
                 <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border);">
                   <input id="add-member-search" type="search" class="form-control" placeholder="Buscar usuario para agregar..." />
                   <div id="add-member-results" style="margin-top:0.5rem;"></div>
@@ -211,7 +224,7 @@ const Chat = (() => {
 
       document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-      if (isCreator) {
+      if (isAdmin) {
         const searchInput = document.getElementById('add-member-search');
         searchInput.oninput = async (e) => {
           const term = e.target.value.trim();
@@ -276,6 +289,27 @@ const Chat = (() => {
       }
     } catch (e) {
       console.error('Error al eliminar miembro:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Change member role ─────────────────────────────────── */
+  async function changeMemberRole(groupId, userId, role) {
+    try {
+      const res = await fetch(`/api/groups/${groupId}/members/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...ChatUtils.authHeaders() },
+        body: JSON.stringify({ role })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Rol actualizado', 'success');
+        showGroupMembers(groupId); // Recargar modal
+      } else {
+        Toast.show(data.msg || 'Error al actualizar rol', 'error');
+      }
+    } catch (e) {
+      console.error('Error al actualizar rol:', e);
       Toast.show('Error de red', 'error');
     }
   }
@@ -529,6 +563,7 @@ const Chat = (() => {
     showGroupMembers,
     addGroupMember,
     removeGroupMember,
+    changeMemberRole,
     showGroupInvites,
     createGroupInvite,
     copyInviteLink,

@@ -12,8 +12,46 @@ function registerChatEvents(socket, io, userId, onlineUsers, q) {
   });
 
   socket.on('chat:message', (data) => {
-    const { room, receiverId, type, content, iv, reply_to } = data;
-    if (!room || !content) return;
+    const { room, receiverId, groupId, type, content, iv, reply_to } = data;
+    if (!content) return;
+
+    // Mensaje de grupo
+    if (groupId) {
+      const msgId = q.saveMessage({ room: `group_${groupId}`, senderId: userId, groupId, type, content, iv, replyTo: reply_to });
+      const user = q.getUserById(userId);
+      
+      const full = {
+        id: msgId, room: `group_${groupId}`, group_id: groupId, sender_id: userId,
+        type: type || 'text', content, iv,
+        sender_name: user?.name, sender_avatar: user?.avatar, sender_role: user?.role,
+        created_at: new Date().toISOString()
+      };
+
+      /* ⚠️ CRÍTICO — reply_to_data — NO MODIFICAR */
+      if (data.reply_to) {
+        const replyMsg = q.getMessageById(data.reply_to);
+        if (replyMsg) {
+          full.reply_to_data = {
+            id: replyMsg.id, content: replyMsg.content,
+            type: replyMsg.type, sender_name: replyMsg.sender_name,
+            sender_id: replyMsg.sender_id
+          };
+        }
+      }
+
+      // Enviar a todos los miembros del grupo
+      const groupMembers = q.getGroupMembers(groupId);
+      groupMembers.forEach(member => {
+        const memberSocketId = onlineUsers.get(member.id);
+        if (memberSocketId) {
+          io.to(memberSocketId).emit('chat:message', full);
+        }
+      });
+      return;
+    }
+
+    // Mensaje normal (uno a uno)
+    if (!room) return;
 
     const msgId = q.saveMessage({ room, senderId: userId, receiverId, type, content, iv, replyTo: reply_to });
     const user  = q.getUserById(userId);

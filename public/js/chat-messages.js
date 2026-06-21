@@ -47,6 +47,17 @@ const ChatMessages = (() => {
   }
 
   /* ═════════════════════════════════════════════════════════════════════════════
+  /* ⚠️ sendGroupText: enviar mensaje de grupo sin encriptar (por ahora) */
+  async function sendGroupText(groupId, replyTo = null) {
+    const inp = document.getElementById('msg-input');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    ChatSocket.emit('chat:message', { groupId, type: 'text', content: text, iv: null, reply_to: replyTo });
+    SoundEffects?.playSend();
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════════
   /* ⚠️ sendFile: subir a /api/chat/upload, usar type y url del response. NO hacer scroll. */
   async function sendFile(e, room, receiverId) {
     const file = e.target.files?.[0];
@@ -81,6 +92,7 @@ const ChatMessages = (() => {
     setActive,
     getActive,
     sendText,
+    sendGroupText,
     sendFile,
     appendMessage,
     deleteMessage,

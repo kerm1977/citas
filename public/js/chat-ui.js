@@ -137,7 +137,14 @@ const ChatUI = (() => {
       e.preventDefault();
       const replyTo = ChatReply.getReplyTo();
       const replyToId = replyTo ? replyTo.msgId : null;
-      ChatMessages.sendText(room, userId, replyToId);
+      
+      // Verificar si estamos en un grupo
+      const active = ChatMessages.getActive();
+      if (active && active.isGroup) {
+        ChatMessages.sendGroupText(active.id, replyToId);
+      } else {
+        ChatMessages.sendText(room, userId, replyToId);
+      }
       ChatReply.clearReplyTo();
     };
 

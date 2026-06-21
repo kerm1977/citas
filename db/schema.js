@@ -86,6 +86,12 @@ async function initDB() {
     /* La columna ya existe, ignorar error */
   }
 
+  try {
+    dbExec(`ALTER TABLE group_members ADD COLUMN role TEXT DEFAULT 'member'`);
+  } catch (e) {
+    /* La columna ya existe, ignorar error */
+  }
+
   dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_room   ON messages(room)`);
   dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_sender ON messages(sender_id)`);
   dbExec(`CREATE INDEX IF NOT EXISTS idx_msg_group  ON messages(group_id)`);
@@ -150,6 +156,7 @@ async function initDB() {
       id         TEXT PRIMARY KEY,
       group_id   TEXT NOT NULL,
       user_id    TEXT NOT NULL,
+      role       TEXT DEFAULT 'member',
       joined_at  TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
