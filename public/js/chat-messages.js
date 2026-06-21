@@ -53,6 +53,15 @@ const ChatMessages = (() => {
     const text = inp.value.trim();
     if (!text) return;
     inp.value = '';
+    
+    const active = getActive();
+    // Prevenir que superusuarios en modo invisible envíen mensajes
+    if (active && active.isSuperuser && !active.isMember) {
+      Toast.show('No puedes enviar mensajes en modo invisible', 'error');
+      return;
+    }
+    
+    console.log('[ChatMessages] Enviando mensaje de grupo:', { groupId, text, replyTo });
     ChatSocket.emit('chat:message', { groupId, type: 'text', content: text, iv: null, reply_to: replyTo });
     SoundEffects?.playSend();
   }

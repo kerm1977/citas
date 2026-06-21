@@ -133,16 +133,21 @@ const ChatUI = (() => {
      *  4. Limpiar replyTo después de enviar
      * ═════════════════════════════════════════════════════════════════════════════ */
     const form = document.getElementById('chat-form');
+    console.log('[ChatUI] Formulario encontrado:', form);
     form.onsubmit = (e) => {
+      console.log('[ChatUI] onsubmit disparado');
       e.preventDefault();
       const replyTo = ChatReply.getReplyTo();
       const replyToId = replyTo ? replyTo.msgId : null;
       
       // Verificar si estamos en un grupo
       const active = ChatMessages.getActive();
+      console.log('[ChatUI] Formulario enviado, active:', active);
       if (active && active.isGroup) {
+        console.log('[ChatUI] Enviando mensaje de grupo, groupId:', active.id);
         ChatMessages.sendGroupText(active.id, replyToId);
       } else {
+        console.log('[ChatUI] Enviando mensaje normal, room:', room, 'userId:', userId);
         ChatMessages.sendText(room, userId, replyToId);
       }
       ChatReply.clearReplyTo();

@@ -99,6 +99,15 @@ const Chat = (() => {
         return;
       }
 
+      // Verificar si es superusuario (puede ver grupos sin ser miembro)
+      const isSuperuser = window._session?.user?.role === 'superadmin';
+      const isMember = data.members.some(m => m.id === window._session?.user?.id);
+
+      if (!isSuperuser && !isMember) {
+        Toast.show('No eres miembro de este grupo', 'error');
+        return;
+      }
+
       // Mostrar ventana de chat
       document.getElementById('chat-empty')?.classList.add('hidden');
       document.getElementById('chat-window')?.classList.remove('hidden');
@@ -114,16 +123,18 @@ const Chat = (() => {
             </div>
             <div>
               <div style="font-weight:600;color:white;">${groupName}</div>
-              <div style="font-size:0.75rem;color:var(--text-muted);">${data.members.length} miembros</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">${data.members.length} miembros${isSuperuser && !isMember ? ' (Modo invisible)' : ''}</div>
             </div>
           </div>
           <div style="display:flex;gap:0.5rem;">
             <button class="icon-btn" onclick="Chat.showGroupMembers('${groupId}')" title="Miembros">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
             </button>
-            <button class="icon-btn" onclick="Chat.showGroupInvites('${groupId}')" title="Invitaciones">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            </button>
+            ${isMember ? `
+              <button class="icon-btn" onclick="Chat.showGroupInvites('${groupId}')" title="Invitaciones">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12 13 2,6"></polyline></svg>
+              </button>
+            ` : ''}
           </div>
         `;
       }
@@ -135,7 +146,8 @@ const Chat = (() => {
       }
 
       // Guardar grupo activo
-      ChatMessages.setActive({ id: groupId, name: groupName, isGroup: true });
+      ChatMessages.setActive({ id: groupId, name: groupName, isGroup: true, isSuperuser, isMember });
+      console.log('[Chat] Grupo activo establecido:', { id: groupId, name: groupName, isGroup: true, isSuperuser, isMember });
 
       // Cargar mensajes del grupo
       await loadGroupMessages(groupId);

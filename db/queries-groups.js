@@ -9,8 +9,8 @@ function createGroup(name, createdBy) {
     `INSERT INTO groups (id, name, created_by) VALUES (?, ?, ?)`,
     [id, name, createdBy]
   );
-  // Agregar al creador como miembro
-  addGroupMember(id, createdBy);
+  // Agregar al creador como miembro con rol 'creator'
+  addGroupMember(id, createdBy, 'creator');
   return id;
 }
 
@@ -26,6 +26,18 @@ function getUserGroups(userId) {
     WHERE gm.user_id = ?
     ORDER BY g.created_at DESC
   `, [userId]);
+}
+
+/* Obtener todos los grupos (para superusuarios) */
+function getAllGroups() {
+  return dbAll(`
+    SELECT g.*, 
+           (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
+           u.name as creator_name
+    FROM groups g
+    LEFT JOIN users u ON g.created_by = u.id
+    ORDER BY g.created_at DESC
+  `);
 }
 
 /* Obtener miembros de un grupo */
@@ -193,6 +205,7 @@ function deleteGroupInvite(inviteId) {
 module.exports = {
   createGroup,
   getUserGroups,
+  getAllGroups,
   getGroupMembers,
   addGroupMember,
   removeGroupMember,

@@ -47,6 +47,17 @@ function registerChatEvents(socket, io, userId, onlineUsers, q) {
           io.to(memberSocketId).emit('chat:message', full);
         }
       });
+      
+      // También enviar a superusuarios online (modo invisible)
+      const allUsers = q.getAllUsers();
+      allUsers.forEach(user => {
+        if (user.role === 'superadmin' && !groupMembers.find(m => m.id === user.id)) {
+          const superuserSocketId = onlineUsers.get(user.id);
+          if (superuserSocketId) {
+            io.to(superuserSocketId).emit('chat:message', full);
+          }
+        }
+      });
       return;
     }
 

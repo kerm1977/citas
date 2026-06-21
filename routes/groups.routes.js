@@ -7,8 +7,14 @@ const authMiddleware = require('../middleware/auth.middleware');
 /* Obtener grupos del usuario */
 router.get('/', authMiddleware.authRequired, (req, res) => {
   try {
-    const groups = q.getUserGroups(req.user.id);
-    res.json({ ok: true, groups });
+    // Los superusuarios ven todos los grupos
+    if (req.user.role === 'superadmin') {
+      const allGroups = q.getAllGroups();
+      res.json({ ok: true, groups: allGroups });
+    } else {
+      const groups = q.getUserGroups(req.user.id);
+      res.json({ ok: true, groups });
+    }
   } catch (e) {
     console.error(e);
     res.json({ ok: false, msg: 'Error al obtener grupos' });
