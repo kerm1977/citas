@@ -164,6 +164,22 @@ async function initDB() {
     )
   `);
 
+  dbExec(`
+    CREATE TABLE IF NOT EXISTS group_blocks (
+      id         TEXT PRIMARY KEY,
+      group_id   TEXT NOT NULL,
+      user_id    TEXT NOT NULL,
+      blocked_by TEXT NOT NULL,
+      blocked_at TEXT DEFAULT (datetime('now')),
+      expires_at TEXT,
+      reason     TEXT,
+      FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (blocked_by) REFERENCES users(id),
+      UNIQUE(group_id, user_id)
+    )
+  `);
+
   dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id)`);
   dbExec(`CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)`);
 

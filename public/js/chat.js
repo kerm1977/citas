@@ -211,10 +211,16 @@ const Chat = (() => {
               <option value="member" ${m.role === 'member' ? 'selected' : ''}>Miembro</option>
               <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
             </select>
+            <button onclick="Chat.blockUserInGroup('${groupId}', '${m.id}')" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+              Bloquear
+            </button>
             <button onclick="Chat.removeGroupMember('${groupId}', '${m.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
               Eliminar
             </button>
           ` : isAdmin && m.id !== window._session?.user?.id && m.role !== 'admin' ? `
+            <button onclick="Chat.blockUserInGroup('${groupId}', '${m.id}')" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
+              Bloquear
+            </button>
             <button onclick="Chat.removeGroupMember('${groupId}', '${m.id}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.4rem 0.8rem;border-radius:0.4rem;cursor:pointer;font-size:0.8rem;">
               Eliminar
             </button>
@@ -235,6 +241,16 @@ const Chat = (() => {
                 <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border);">
                   <input id="add-member-search" type="search" class="form-control" placeholder="Buscar usuario para agregar..." />
                   <div id="add-member-results" style="margin-top:0.5rem;"></div>
+                </div>
+              ` : ''}
+              ${isCreator ? `
+                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--glass-border);">
+                  <button onclick="Chat.deleteGroupMessages('${groupId}')" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:0.6rem 1rem;border-radius:0.4rem;cursor:pointer;font-size:0.9rem;width:100%;margin-bottom:0.5rem;">
+                    🗑️ Eliminar todos los mensajes
+                  </button>
+                  <button onclick="Chat.deleteGroup('${groupId}')" style="background:rgba(220,38,38,0.3);border:1px solid rgba(220,38,38,0.5);color:#fca5a5;padding:0.6rem 1rem;border-radius:0.4rem;cursor:pointer;font-size:0.9rem;width:100%;">
+                    ⚠️ Eliminar grupo completo
+                  </button>
                 </div>
               ` : ''}
             </div>
@@ -309,6 +325,88 @@ const Chat = (() => {
       }
     } catch (e) {
       console.error('Error al eliminar miembro:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Block user in group ─────────────────────────────────── */
+  async function blockUserInGroup(groupId, userId) {
+    const duration = prompt('Duración del bloqueo (en minutos, vacío para permanente):');
+    if (duration === null) return; // Cancelado
+    
+    let expiresAt = null;
+    if (duration && duration.trim()) {
+      const minutes = parseInt(duration);
+      if (!isNaN(minutes) && minutes > 0) {
+        const date = new Date();
+        date.setMinutes(date.getMinutes() + minutes);
+        expiresAt = date.toISOString();
+      }
+    }
+    
+    const reason = prompt('Razón del bloqueo (opcional):') || null;
+    
+    try {
+      const res = await fetch(`/api/groups/${groupId}/blocks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...ChatUtils.authHeaders() },
+        body: JSON.stringify({ userId, expiresAt, reason })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Usuario bloqueado en el grupo', 'success');
+        document.getElementById('group-members-modal')?.remove();
+        loadGroupMessages(groupId);
+      } else {
+        Toast.show(data.msg || 'Error al bloquear usuario', 'error');
+      }
+    } catch (e) {
+      console.error('Error al bloquear usuario:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Delete group ───────────────────────────────────────── */
+  async function deleteGroup(groupId) {
+    if (!confirm('¿Estás seguro de eliminar este grupo? Esta acción no se puede deshacer.')) return;
+    
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, {
+        method: 'DELETE',
+        headers: ChatUtils.authHeaders()
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Grupo eliminado', 'success');
+        document.getElementById('group-members-modal')?.remove();
+        location.reload(); // Recargar para actualizar lista de grupos
+      } else {
+        Toast.show(data.msg || 'Error al eliminar grupo', 'error');
+      }
+    } catch (e) {
+      console.error('Error al eliminar grupo:', e);
+      Toast.show('Error de red', 'error');
+    }
+  }
+
+  /* ── Delete all group messages ───────────────────────────── */
+  async function deleteGroupMessages(groupId) {
+    if (!confirm('¿Estás seguro de eliminar todos los mensajes del grupo? Esta acción no se puede deshacer.')) return;
+    
+    try {
+      const res = await fetch(`/api/groups/${groupId}/messages`, {
+        method: 'DELETE',
+        headers: ChatUtils.authHeaders()
+      });
+      const data = await res.json();
+      if (data.ok) {
+        Toast.show('Mensajes eliminados', 'success');
+        loadGroupMessages(groupId);
+      } else {
+        Toast.show(data.msg || 'Error al eliminar mensajes', 'error');
+      }
+    } catch (e) {
+      console.error('Error al eliminar mensajes:', e);
       Toast.show('Error de red', 'error');
     }
   }
@@ -607,6 +705,9 @@ const Chat = (() => {
     _toggleMessageMenu: ChatModal.toggleMessageMenu,
     closeSuperuserModal: ChatUI.closeSuperuserModal,
     openSuperuserChat: ChatUI.openSuperuserChat,
-    reportMessage: (msgId) => window.ReportModal?.open(msgId)
+    reportMessage: (msgId) => window.ReportModal?.open(msgId),
+    blockUserInGroup,
+    deleteGroup,
+    deleteGroupMessages
   };
 })();

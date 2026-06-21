@@ -56,7 +56,7 @@ function getMessages(room, limit = 50, offset = 0) {
 }
 
 /* Obtener mensajes de un grupo */
-function getGroupMessages(groupId, limit = 50, offset = 0) {
+function getGroupMessages(groupId, userId = null, limit = 50, offset = 0) {
   const rows = dbAll(
     `SELECT m.id, m.room, m.sender_id, m.receiver_id, m.group_id, m.type, m.content, m.iv,
             m.reply_to, m.deleted, m.read_at, m.created_at,
@@ -83,6 +83,13 @@ function getGroupMessages(groupId, limit = 50, offset = 0) {
     }
     return msg;
   });
+  
+  // Si se proporciona userId, filtrar mensajes de usuarios bloqueados
+  if (userId) {
+    const q = require('./queries-groups');
+    return messagesWithReply.filter(m => !q.isUserBlockedInGroup(groupId, m.sender_id));
+  }
+  
   return messagesWithReply.reverse();
 }
 

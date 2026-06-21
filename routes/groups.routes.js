@@ -192,4 +192,90 @@ router.post('/accept-invite/:token', authMiddleware.authRequired, (req, res) => 
   }
 });
 
+/* Bloquear usuario en grupo */
+router.post('/:id/blocks', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { id: groupId } = req.params;
+    const { userId, expiresAt, reason } = req.body;
+    
+    if (!q.isGroupAdmin(groupId, req.user.id)) {
+      return res.json({ ok: false, msg: 'No tienes permiso para bloquear usuarios' });
+    }
+    
+    const blockId = q.blockUserInGroup(groupId, userId, req.user.id, expiresAt, reason);
+    res.json({ ok: true, blockId, msg: 'Usuario bloqueado' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al bloquear usuario' });
+  }
+});
+
+/* Desbloquear usuario en grupo */
+router.delete('/:id/blocks/:userId', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { id: groupId, userId } = req.params;
+    
+    if (!q.isGroupAdmin(groupId, req.user.id)) {
+      return res.json({ ok: false, msg: 'No tienes permiso para desbloquear usuarios' });
+    }
+    
+    q.unblockUserInGroup(groupId, userId);
+    res.json({ ok: true, msg: 'Usuario desbloqueado' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al desbloquear usuario' });
+  }
+});
+
+/* Obtener bloqueos de un grupo */
+router.get('/:id/blocks', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { id: groupId } = req.params;
+    
+    if (!q.isGroupMember(groupId, req.user.id) && req.user.role !== 'superadmin') {
+      return res.json({ ok: false, msg: 'No eres miembro de este grupo' });
+    }
+    
+    const blocks = q.getGroupBlocks(groupId);
+    res.json({ ok: true, blocks });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al obtener bloqueos' });
+  }
+});
+
+/* Eliminar grupo completo (solo creador) */
+router.delete('/:id', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { id: groupId } = req.params;
+    
+    if (!q.isGroupCreator(groupId, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede eliminar el grupo' });
+    }
+    
+    q.deleteGroup(groupId);
+    res.json({ ok: true, msg: 'Grupo eliminado' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al eliminar grupo' });
+  }
+});
+
+/* Eliminar todos los mensajes de un grupo (solo creador) */
+router.delete('/:id/messages', authMiddleware.authRequired, (req, res) => {
+  try {
+    const { id: groupId } = req.params;
+    
+    if (!q.isGroupCreator(groupId, req.user.id)) {
+      return res.json({ ok: false, msg: 'Solo el creador puede eliminar mensajes' });
+    }
+    
+    q.deleteGroupMessages(groupId);
+    res.json({ ok: true, msg: 'Mensajes eliminados' });
+  } catch (e) {
+    console.error(e);
+    res.json({ ok: false, msg: 'Error al eliminar mensajes' });
+  }
+});
+
 module.exports = router;

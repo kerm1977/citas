@@ -220,6 +220,52 @@ function deleteGroupInvite(inviteId) {
   dbRun(`DELETE FROM group_invites WHERE id = ?`, [inviteId]);
 }
 
+/* Bloquear usuario en grupo temporalmente */
+function blockUserInGroup(groupId, userId, blockedBy, expiresAt = null, reason = null) {
+  const id = randomUUID();
+  dbRun(
+    `INSERT INTO group_blocks (id, group_id, user_id, blocked_by, expires_at, reason) VALUES (?, ?, ?, ?, ?, ?)`,
+    [id, groupId, userId, blockedBy, expiresAt, reason]
+  );
+  return id;
+}
+
+/* Desbloquear usuario en grupo */
+function unblockUserInGroup(groupId, userId) {
+  dbRun(`DELETE FROM group_blocks WHERE group_id = ? AND user_id = ?`, [groupId, userId]);
+}
+
+/* Verificar si un usuario está bloqueado en un grupo */
+function isUserBlockedInGroup(groupId, userId) {
+  const block = dbGet(
+    `SELECT * FROM group_blocks WHERE group_id = ? AND user_id = ? AND (expires_at IS NULL OR expires_at > datetime('now'))`,
+    [groupId, userId]
+  );
+  return !!block;
+}
+
+/* Obtener bloqueos de un grupo */
+function getGroupBlocks(groupId) {
+  return dbAll(`
+    SELECT gb.*, u.name as user_name, u.avatar as user_avatar, b.name as blocked_by_name
+    FROM group_blocks gb
+    INNER JOIN users u ON gb.user_id = u.id
+    INNER JOIN users b ON gb.blocked_by = b.id
+    WHERE gb.group_id = ?
+    ORDER BY gb.blocked_at DESC
+  `, [groupId]);
+}
+
+/* Eliminar grupo completo */
+function deleteGroup(groupId) {
+  dbRun(`DELETE FROM groups WHERE id = ?`, [groupId]);
+}
+
+/* Eliminar todos los mensajes de un grupo */
+function deleteGroupMessages(groupId) {
+  dbRun(`DELETE FROM messages WHERE group_id = ?`, [groupId]);
+}
+
 module.exports = {
   createGroup,
   getUserGroups,
@@ -237,5 +283,11 @@ module.exports = {
   getGroupInviteByToken,
   acceptGroupInvite,
   getGroupInvites,
-  deleteGroupInvite
+  deleteGroupInvite,
+  blockUserInGroup,
+  unblockUserInGroup,
+  isUserBlockedInGroup,
+  getGroupBlocks,
+  deleteGroup,
+  deleteGroupMessages
 };

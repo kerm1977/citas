@@ -82,7 +82,7 @@ module.exports = (io) => {
     }
     const limit  = parseInt(req.query.limit)  || 50;
     const offset = parseInt(req.query.offset) || 0;
-    const msgs   = q.getGroupMessages(group_id, limit, offset);
+    const msgs   = q.getGroupMessages(group_id, req.user.id, limit, offset);
     res.json({ ok: true, messages: msgs });
   });
 
